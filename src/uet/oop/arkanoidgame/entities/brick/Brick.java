@@ -1,4 +1,4 @@
-package uet.oop.arkanoidgame.entities;
+package uet.oop.arkanoidgame.entities.brick;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

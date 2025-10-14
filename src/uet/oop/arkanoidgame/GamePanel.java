@@ -4,7 +4,9 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import uet.oop.arkanoidgame.entities.*;
+import uet.oop.arkanoidgame.entities.BrickGrid;
+import uet.oop.arkanoidgame.entities.paddle.Paddle;
+import uet.oop.arkanoidgame.entities.ball.Ball;
 
 public class GamePanel extends Canvas {
 

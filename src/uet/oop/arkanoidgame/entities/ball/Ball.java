@@ -1,7 +1,10 @@
-package uet.oop.arkanoidgame.entities;
+package uet.oop.arkanoidgame.entities.ball;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import uet.oop.arkanoidgame.entities.brick.Brick;
+import uet.oop.arkanoidgame.entities.BrickGrid;
+import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 public class Ball {
     private double x, y;

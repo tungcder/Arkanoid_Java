@@ -1,4 +1,4 @@
-package uet.oop.arkanoidgame.entities;
+package uet.oop.arkanoidgame.entities.paddle;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
@@ -41,3 +41,4 @@ public class Paddle {
     public double getWidth() { return width; }
     public double getHeight() { return height; }
 }
+
