@@ -3,7 +3,7 @@ package uet.oop.arkanoidgame.entities.ball;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import uet.oop.arkanoidgame.entities.brick.Brick;
-import uet.oop.arkanoidgame.entities.BrickGrid;
+import uet.oop.arkanoidgame.entities.brick.BrickGrid;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 public class Ball {
@@ -55,4 +55,13 @@ public class Ball {
         gc.setFill(Color.YELLOW);
         gc.fillOval(x, y, radius * 2, radius * 2);
     }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
 }
