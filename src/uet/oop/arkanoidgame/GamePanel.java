@@ -26,7 +26,7 @@ public class GamePanel extends Canvas {
         this.stage = stage;
 
         paddle = new Paddle(350, 550, 100, 15);
-        ball = new Ball(390, 300, 10);
+        ball = new Ball(390, 300, 15);
         bricks = new BrickGrid(8, 5);
 
         setFocusTraversable(true);
@@ -53,7 +53,7 @@ public class GamePanel extends Canvas {
     }
 
     private void update() {
-        ball.update();
+        ball.update(getWidth(), getHeight());
         paddle.update();
         ball.checkCollision(paddle);
         ball.checkCollision(bricks);
