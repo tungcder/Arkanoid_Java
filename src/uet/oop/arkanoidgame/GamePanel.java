@@ -25,13 +25,16 @@ public class GamePanel extends Canvas {
         super(800, 600);
         this.stage = stage;
 
-        paddle = new Paddle(350, 550, 100, 15);
+        paddle = new Paddle(350, 550, 140, 40);
         ball = new Ball(390, 300, 15);
         bricks = new BrickGrid(8, 5);
 
         setFocusTraversable(true);
         setOnKeyPressed(e -> paddle.addKey(e.getCode()));
         setOnKeyReleased(e -> paddle.removeKey(e.getCode()));
+
+        this.setOnMouseMoved(e -> paddle.handleMouseMove(e));
+        this.setOnMouseDragged(e -> paddle.handleMouseMove(e));
     }
 
     public void startGame() {
