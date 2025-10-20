@@ -4,21 +4,22 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import uet.oop.arkanoidgame.entities.*;
+import uet.oop.arkanoidgame.entities.menu.MainMenu;
 
 public class ArkanoidGame extends Application {
 
     @Override
     public void start(Stage stage) {
-        GamePanel panel = new GamePanel();
+        // Tạo đối tượng menu
+        MainMenu mainMenu = new MainMenu(stage);
 
-        Pane root = new Pane(panel);
-        Scene scene = new Scene(root);
-        stage.setTitle("Arkanoid JavaFX");
-        stage.setScene(scene);
+        // Tạo scene cho menu
+        Scene menuScene = new Scene(mainMenu, 800, 600);
+
+        // Gắn scene menu vào stage
+        stage.setTitle("Arkanoid - Main Menu");
+        stage.setScene(menuScene);
         stage.show();
-
-        panel.startGame();
     }
 
     public static void main(String[] args) {
