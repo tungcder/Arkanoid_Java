@@ -3,35 +3,90 @@ package uet.oop.arkanoidgame.entities.menu;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Pane;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import uet.oop.arkanoidgame.GamePanel;
 
-public class MainMenu extends VBox {
+public class MainMenu extends StackPane {
 
     public MainMenu(Stage stage) {
-        setAlignment(Pos.CENTER);
-        setSpacing(20);
-        setStyle("-fx-background-color: black;");
+        // Ảnh nền
+        Image bgImage = new Image(
+                getClass().getResource("/uet/oop/arkanoidgame/entities/menu/menu_images/menu_bg.png").toExternalForm()
+        );
+        ImageView background = new ImageView(bgImage);
+        background.setFitWidth(800);
+        background.setFitHeight(600);
 
-        Text title = new Text("ARKANOID");
-        title.setStyle("-fx-font-size: 48px; -fx-fill: cyan; -fx-font-weight: bold;");
+        // Hiệu ứng đổ bóng
+        DropShadow shadow = new DropShadow(15, Color.BLACK);
 
-        Button startButton = new Button("Start Game");
-        Button exitButton = new Button("Exit");
+        // Style cơ bản
+        String normalStyle = "-fx-background-color: rgba(255, 204, 0, 0.85);"
+                + "-fx-text-fill: black;"
+                + "-fx-font-size: 26px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 15;"
+                + "-fx-padding: 10 60 10 60;";
+        String hoverStyle = "-fx-background-color: linear-gradient(to bottom, #ffaa00, #ff6600);"
+                + "-fx-text-fill: white;"
+                + "-fx-font-size: 26px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-background-radius: 15;"
+                + "-fx-padding: 10 60 10 60;";
 
-        startButton.setOnAction(e -> {
-            GamePanel panel = new GamePanel(stage);
-            Scene gameScene = new Scene(new Pane(panel), 800, 600);
+        // Các nút
+        Button startBtn = new Button("START GAME");
+        Button optionsBtn = new Button("OPTIONS");
+        Button exitBtn = new Button("EXIT");
+
+        startBtn.setEffect(shadow);
+        optionsBtn.setEffect(shadow);
+        exitBtn.setEffect(shadow);
+
+        startBtn.setStyle(normalStyle);
+        optionsBtn.setStyle(normalStyle);
+        exitBtn.setStyle(normalStyle);
+
+        // Hover
+        startBtn.setOnMouseEntered(e -> startBtn.setStyle(hoverStyle));
+        startBtn.setOnMouseExited(e -> startBtn.setStyle(normalStyle));
+
+        optionsBtn.setOnMouseEntered(e -> optionsBtn.setStyle(hoverStyle));
+        optionsBtn.setOnMouseExited(e -> optionsBtn.setStyle(normalStyle));
+
+        exitBtn.setOnMouseEntered(e -> exitBtn.setStyle(hoverStyle));
+        exitBtn.setOnMouseExited(e -> exitBtn.setStyle(normalStyle));
+
+        // Hành động nút
+        startBtn.setOnAction(e -> {
+            GamePanel gamePanel = new GamePanel(stage);
+            Scene gameScene = new Scene(new javafx.scene.layout.StackPane(gamePanel), 800, 600);
             stage.setScene(gameScene);
-            panel.startGame();
-            panel.requestFocus();
+            gamePanel.startGame();
         });
 
-        exitButton.setOnAction(e -> stage.close());
+        optionsBtn.setOnAction(e -> System.out.println("Open Options!"));
+        exitBtn.setOnAction(e -> stage.close());
 
-        getChildren().addAll(title, startButton, exitButton);
+        // VBox chứa các nút (căn giữa)
+        VBox menuBox = new VBox(25);
+        menuBox.setAlignment(Pos.CENTER);
+        menuBox.getChildren().addAll(startBtn, optionsBtn, exitBtn);
+        menuBox.setTranslateY(60); // dịch xuống 80px
+
+
+        // Thêm tất cả vào StackPane
+        getChildren().addAll(background, menuBox);
+        setAlignment(Pos.CENTER);
+    }
+
+    public Scene createScene() {
+        return new Scene(this, 800, 600);
     }
 }

@@ -1,12 +1,19 @@
 package uet.oop.arkanoidgame;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import uet.oop.arkanoidgame.entities.ball.Ball;
 import uet.oop.arkanoidgame.entities.brick.BrickGrid;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
@@ -77,20 +84,43 @@ public class GamePanel extends Canvas {
     private void showGameOverScreen() {
         StackPane overlay = new StackPane();
         overlay.setPrefSize(800, 600);
-        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8);");
 
+        // Ảnh nền Game Over (full màn hình)
+        Image image = new Image(getClass().getResource(
+                "/uet/oop/arkanoidgame/entities/menu/menu_images/game_over.png"
+        ).toExternalForm());
+        ImageView gameOverView = new ImageView(image);
+        gameOverView.setFitWidth(800);
+        gameOverView.setFitHeight(600);
+        gameOverView.setPreserveRatio(false); // ảnh fill full
+
+        // Nút "Back to Menu"
         Button backToMenu = new Button("Back to Menu");
-        backToMenu.setStyle("-fx-font-size: 20px; -fx-background-color: cyan; -fx-text-fill: black;");
+        backToMenu.setStyle(
+                "-fx-font-size: 22px; " +
+                        "-fx-background-color: #ffcc00; " +
+                        "-fx-text-fill: black; " +
+                        "-fx-background-radius: 10;"
+        );
+
+        // Hiệu ứng hover cho nút
+        backToMenu.setOnMouseEntered(e ->
+                backToMenu.setStyle("-fx-font-size: 22px; -fx-background-color: #ffaa00; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+        backToMenu.setOnMouseExited(e ->
+                backToMenu.setStyle("-fx-font-size: 22px; -fx-background-color: #ffcc00; -fx-text-fill: black; -fx-background-radius: 10;")
+        );
+
         backToMenu.setOnAction(e -> {
-            // Quay lại menu
             MainMenu menu = new MainMenu(stage);
-            stage.setScene(new javafx.scene.Scene(menu, 800, 600));
+            stage.setScene(new Scene(menu, 800, 600));
         });
 
-        overlay.getChildren().add(backToMenu);
-        StackPane.setAlignment(backToMenu, javafx.geometry.Pos.CENTER);
+        // Bố trí: ảnh full + nút giữa màn
+        StackPane.setAlignment(backToMenu, Pos.CENTER);
+        overlay.getChildren().addAll(gameOverView, backToMenu);
 
-        // Gắn lớp overlay vào stage
+        // Gán overlay vào stage
         stage.getScene().setRoot(overlay);
     }
 }
