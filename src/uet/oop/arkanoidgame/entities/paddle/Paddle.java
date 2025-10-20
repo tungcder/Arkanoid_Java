@@ -9,15 +9,14 @@ import uet.oop.arkanoidgame.entities.ball.Ball;
 import java.util.*;
 
 public class Paddle {
-    private double x, y, width, height;
+    private  double x, y, width, height;
     private double speed = 6;
     private Set<KeyCode> keys = new HashSet<>();
     private static final double CANVAS_WIDTH = 800;
 
-    // --- CÁC THAY ĐỔI ĐỂ TẠO ANIMATION ---
-    private List<Image> paddleFrames;      // Danh sách chứa các frame ảnh
-    private int currentFrameIndex;         // Chỉ số của frame hiện tại
-    private int animationCounter;          // Bộ đếm để tạo độ trễ cho animation
+    private List<Image> paddleFrames;
+    private int currentFrameIndex;
+    private int animationCounter;
     private static final int ANIMATION_DELAY = 30;
 
     public Paddle(double x, double y, double width, double height) {
@@ -30,7 +29,6 @@ public class Paddle {
         this.currentFrameIndex = 0;
         this.animationCounter = 0;
 
-        // --- TẢI 2 FRAME ẢNH ---
         // Đảm bảo bạn có 2 file ảnh này trong đúng thư mục
         try {
             Image frame1 = new Image(Objects.requireNonNull(
