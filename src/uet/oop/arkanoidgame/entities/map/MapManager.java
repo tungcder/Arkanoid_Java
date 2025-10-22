@@ -3,31 +3,25 @@ package uet.oop.arkanoidgame.entities.map;
 import uet.oop.arkanoidgame.entities.brick.BrickGrid;
 
 public class MapManager {
-    private String[] levelFiles = {
-            "src/main/resourse/Levels/Map1.csv" // Có thể thêm nhiều level hơn
+    private String[] levelPaths = {
+            "src/main/resources/Levels/Map1.csv"
+            // Add more levels as needed
     };
     private int currentLevel = 0;
 
-    public void loadLevel(BrickGrid brickGrid) {
-        if (currentLevel < levelFiles.length) {
-            brickGrid.reset(levelFiles[currentLevel]);
-            System.out.println("Tải level " + (currentLevel + 1) + ": " + levelFiles[currentLevel]);
-        } else {
-            System.out.println("Trò chơi hoàn thành! Không còn level nào nữa.");
+    public void loadLevel(BrickGrid bricks) {
+        if (currentLevel < levelPaths.length) {
+            bricks.loadFrom(levelPaths[currentLevel]);
         }
     }
 
-    public void nextLevel(BrickGrid brickGrid) {
-        currentLevel++;
-        loadLevel(brickGrid);
-    }
-
-    public int getCurrentLevel() {
-        return currentLevel + 1; // Trả về level bắt đầu từ 1
-    }
-
     public boolean hasNextLevel() {
-        return currentLevel < levelFiles.length - 1;
+        return currentLevel + 1 < levelPaths.length;
+    }
+
+    public void nextLevel(BrickGrid bricks) {
+        currentLevel++;
+        loadLevel(bricks);
     }
 
     public void resetGame() {

@@ -1,5 +1,8 @@
 package uet.oop.arkanoidgame.entities.brick;
 
+/**
+ * Factory for creating different types of bricks based on type code from CSV.
+ */
 public class BrickFactory {
     public static Brick createBrick(int type, double x, double y, double width, double height) {
         switch (type) {
@@ -14,7 +17,7 @@ public class BrickFactory {
             case 5:
                 return new BrickPowerup(x, y, width, height);
             default:
-                return null;
+                throw new IllegalArgumentException("Unknown brick type: " + type);
         }
     }
 }

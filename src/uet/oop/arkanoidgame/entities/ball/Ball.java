@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import uet.oop.arkanoidgame.entities.brick.Brick;
 import uet.oop.arkanoidgame.entities.brick.BrickGrid;
+import uet.oop.arkanoidgame.entities.item.Item;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class Ball {
 
 
     // ===== Collision with Bricks (normal-based) =====
-    public void checkCollision(BrickGrid grid) {
+    public Item checkCollision(BrickGrid grid) {
         double cx = x + radius, cy = y + radius;
 
         for (Brick b : grid.getBricks()) {
@@ -146,6 +147,7 @@ public class Ball {
             clampSpeed();
             break; // phá 1 viên mỗi frame
         }
+        return null;
     }
 
     // ===== Rendering =====
