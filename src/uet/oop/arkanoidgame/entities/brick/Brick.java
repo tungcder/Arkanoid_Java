@@ -2,78 +2,110 @@ package uet.oop.arkanoidgame.entities.brick;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import uet.oop.arkanoidgame.entities.item.BiggerPaddle;
+import javafx.scene.paint.Color;
 import uet.oop.arkanoidgame.entities.item.Item;
 
+import java.io.InputStream;
+
+/**
+ * Lớp cơ sở cho các loại Brick trong game Arkanoid.
+ * Hỗ trợ load ảnh từ resources, fallback khi không tìm thấy ảnh,
+ * và cho phép định nghĩa gạch không vỡ (unbreakable).
+ */
 public abstract class Brick {
-    private double x;
-    private double y;
-    private double width;
-    private double height;
-    private int hitsRequired;
-    private int currentHits = 0;
-    private boolean destroyed = false;
-    private String imagePath;
 
-    public boolean isDestroyed() {
-        return destroyed;
-    }
-    public double getX() {
-        return x;
-    }
-    public double getY() {
-        return y;
-    }
-    public double getWidth() {
-        return width;
-    }
-    public double getHeight() {
-        return height;
-    }
-    public void setDestroyed(boolean initdestroyed) {
-        this.destroyed = initdestroyed;
+    // --- Thuộc tính cơ bản ---
+    protected double x, y;
+    protected double width, height;
+
+    protected int hitsRequired;
+    protected int currentHits = 0;
+    protected boolean destroyed = false;
+    protected boolean breakable = true; // Mặc định gạch có thể phá
+
+    protected Image image;
+    protected Item powerup;
+
+    // --- Constructor ---
+    public Brick(double x, double y, double width, double height, int hitsRequired, String imageFileName) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.hitsRequired = hitsRequired;
+        this.breakable = true;
+
+        this.image = loadImage("/uet/oop/arkanoidgame/entities/brick/Sprites/" + imageFileName);
     }
 
-    public Brick(double initx, double inity, double initwidth, double initheight, int initHitsRequired, String initImagePath) {
-        this.x = initx;
-        this.y = inity;
-        this.width = initwidth;
-        this.height = initheight;
-        this.hitsRequired = initHitsRequired;
-        this.imagePath = initImagePath;
-    }
-
-    public void render(GraphicsContext gc) {
-        if (!destroyed) {
-            try {
-                String fullPath = "/" + imagePath;  // Thêm / nếu chưa có
-                Image image = new Image(getClass().getResourceAsStream(fullPath));
-                gc.drawImage(image, x, y, width, height);
-            } catch (NullPointerException e) {
-                System.out.println("Không tìm thấy ảnh: " + imagePath);
-                e.printStackTrace();
-            } catch (Exception e) {
-                System.out.println("Lỗi tải ảnh: " + imagePath);
-                e.printStackTrace();
+    // --- Load ảnh ---
+    protected static Image loadImage(String fullPath) {
+        try (InputStream inputStream = Brick.class.getResourceAsStream(fullPath)) {
+            if (inputStream == null) {
+                System.err.println("⚠ Không tìm thấy tài nguyên: " + fullPath);
+                return null;
             }
+            Image img = new Image(inputStream);
+            if (img.isError()) {
+                System.err.println("⚠ Lỗi khi tải ảnh: " + fullPath);
+                return null;
+            }
+            return img;
+        } catch (Exception e) {
+            System.err.println("⚠ Lỗi I/O khi tải ảnh: " + fullPath);
+            e.printStackTrace();
+            return null;
         }
     }
 
-    public void hit() {
+    // --- Khi bị trúng bóng ---
+    public boolean hit() {
+        if (!breakable || destroyed) return false;
         currentHits++;
-        if (currentHits >= hitsRequired && hitsRequired > 0) {
+        if (currentHits >= hitsRequired) {
             destroyed = true;
-            if (Math.random() <0.3) {
-                Item item;
-                double rand = Math.random();
-                if (rand < 0.7) {
-                    item = new BiggerPaddle(x + width / 2, y);
-                }
-            }
+            onDestroyed();
+            return true;
+        }
+        return false;
+    }
+
+    // --- Khi bị phá (override ở lớp con nếu cần) ---
+    protected void onDestroyed() {
+        // Tạo powerup hoặc hiệu ứng khi brick vỡ
+    }
+
+    // --- Vẽ Brick ---
+    public void render(GraphicsContext gc) {
+        if (destroyed) return;
+
+        if (image != null) {
+            gc.drawImage(image, x, y, width, height);
+        } else {
+            gc.setFill(getFallbackColor());
+            gc.fillRect(x, y, width, height);
+            gc.setStroke(Color.BLACK);
+            gc.strokeRect(x, y, width, height);
         }
     }
 
-    public int getHitsRequired() {
-        return hitsRequired;
+    // --- Màu fallback ---
+    protected abstract Color getFallbackColor();
+
+    // --- Getter/Setter ---
+    public boolean isDestroyed() { return destroyed; }
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public double getWidth() { return width; }
+    public double getHeight() { return height; }
+    public int getHitsRequired() { return hitsRequired; }
+
+    public boolean isBreakable() { return breakable; }
+    public void setBreakable(boolean value) { this.breakable = value; }
+
+    public Item getPowerup() { return powerup; }
+    public void setPowerup(Item powerup) { this.powerup = powerup; }
+
+    public void setDestroyed(boolean b) {
     }
 }

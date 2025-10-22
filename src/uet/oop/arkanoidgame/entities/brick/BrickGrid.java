@@ -1,51 +1,44 @@
 package uet.oop.arkanoidgame.entities.brick;
 
-import javafx.scene.canvas.GraphicsContext;
-import uet.oop.arkanoidgame.entities.map.MapLoader; // Import MapLoader mới
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import javafx.scene.canvas.GraphicsContext;
 
 public class BrickGrid {
     private List<Brick> bricks = new ArrayList<>();
-    private double brickWidth = 80;
-    private double brickHeight = 25;
-    private double paddingX = 5;
-    private double paddingY = 5;
-    private double startX = 40;
-    private double startY = 50;
+    private static final double BRICK_WIDTH = 80;
+    private static final double BRICK_HEIGHT = 30;
+    private static final double GRID_OFFSET_X = 0;
+    private static final double GRID_OFFSET_Y = 50;
 
-    public BrickGrid(String csvFilePath) {
-        reset(csvFilePath);
+    public BrickGrid(String csvPath) {
+        loadFrom(csvPath);
     }
 
-    public void reset(String csvFilePath) {
+    public void loadFrom(String csvPath) {
         bricks.clear();
-        int[][] map = MapLoader.loadMap(csvFilePath);
-        if (map == null || map.length == 0) {
-            System.out.println("Không thể tải map từ " + csvFilePath);
-            return;
-        }
-
-        int rows = map.length;
-        int cols = map[0].length; // Giả sử tất cả dòng có cùng số cột
-
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                int type = map[row][col];
-                if (type != 0) {
-                    double x = startX + col * (brickWidth + paddingX);
-                    double y = startY + row * (brickHeight + paddingY);
-                    Brick brick = BrickFactory.createBrick(type, x, y, brickWidth, brickHeight);
-                    if (brick != null) {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvPath))) {
+            String line;
+            int row = 0;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                for (int col = 0; col < values.length; col++) {
+                    int type = Integer.parseInt(values[col].trim());
+                    if (type != 0) {
+                        double x = GRID_OFFSET_X + col * BRICK_WIDTH;
+                        double y = GRID_OFFSET_Y + row * BRICK_HEIGHT;
+                        Brick brick = BrickFactory.createBrick(type, x, y, BRICK_WIDTH, BRICK_HEIGHT);
                         bricks.add(brick);
-                        System.out.println("Thêm gạch loại " + type + " tại (" + x + ", " + y + ")");
-                    } else {
-                        System.out.println("Loại gạch không hợp lệ: " + type);
                     }
                 }
+                row++;
             }
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error loading CSV: " + e.getMessage());
         }
-        System.out.println("Tổng số gạch tải được: " + bricks.size());
     }
 
     public void render(GraphicsContext gc) {
@@ -54,16 +47,16 @@ public class BrickGrid {
         }
     }
 
-    public List<Brick> getBricks() {
-        return bricks;
-    }
-
     public boolean isLevelComplete() {
         for (Brick brick : bricks) {
-            if (!brick.isDestroyed() && brick.getHitsRequired() > 0) {
+            if (!brick.isDestroyed() && brick.isBreakable()) {
                 return false;
             }
         }
         return true;
+    }
+
+    public List<Brick> getBricks() {
+        return bricks;
     }
 }
