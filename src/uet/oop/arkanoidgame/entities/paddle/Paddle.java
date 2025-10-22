@@ -17,7 +17,6 @@ public class Paddle {
     private List<Image> paddleFrames;
     private int currentFrameIndex;
     private int animationCounter;
-    private static final int ANIMATION_DELAY = 30;
 
     public Paddle(double x, double y, double width, double height) {
         this.x = x;
@@ -29,34 +28,36 @@ public class Paddle {
         this.currentFrameIndex = 0;
         this.animationCounter = 0;
 
-        // Đảm bảo bạn có 2 file ảnh này trong đúng thư mục
         try {
             Image frame1 = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleA1.png")
+                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleD1.png")
             ));
             Image frame2 = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleA2.png")
+                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleD2.png")
             ));
             paddleFrames.add(frame1);
             paddleFrames.add(frame2);
         } catch (NullPointerException e) {
             System.err.println("Không thể tải ảnh cho paddle. Hãy kiểm tra lại đường dẫn file.");
-            // Bạn có thể thêm một ảnh mặc định ở đây nếu cần
         }
     }
-
 
     // Update vị trí theo bàn phím
     public void update() {
         if (keys.contains(KeyCode.LEFT) && x > 0) x -= speed;
         if (keys.contains(KeyCode.RIGHT) && x + width < CANVAS_WIDTH) x += speed;
 
-        // --- LOGIC CẬP NHẬT ANIMATION ---
-        animationCounter++;
-        if (animationCounter >= ANIMATION_DELAY) {
-            animationCounter = 0; // Reset bộ đếm
-            // Chuyển sang frame tiếp theo, quay vòng lại nếu hết danh sách
-            currentFrameIndex = (currentFrameIndex + 1) % paddleFrames.size();
+        // Nếu paddle đang ở frame 2 (frame "hit")
+        if (currentFrameIndex == 1) {
+            animationCounter++;
+
+            // Thời gian hiển thị frame 2
+            int hitFrameDuration = 30;
+
+            if (animationCounter >= hitFrameDuration) {
+                animationCounter = 0;
+                currentFrameIndex = 0; // Quay lại frame 1 (mặc định)
+            }
         }
     }
 
@@ -70,11 +71,11 @@ public class Paddle {
     public void render(GraphicsContext gc) {
         // Kiểm tra xem danh sách frame có rỗng không
         if (paddleFrames.isEmpty()) {
-            return; // Không vẽ gì nếu không có ảnh
+            return;
         }
         // Lấy frame hiện tại từ danh sách
         Image currentFrame = paddleFrames.get(currentFrameIndex);
-        // Vẽ frame đó
+        // Vẽ frame
         gc.drawImage(currentFrame, x, y, width, height);
     }
 
@@ -85,6 +86,14 @@ public class Paddle {
 
     public void removeKey(KeyCode code) {
         keys.remove(code);
+    }
+
+    public void handleHit() {
+        // Chỉ kích hoạt nếu đang ở frame 1
+        if (this.currentFrameIndex == 0) {
+            this.currentFrameIndex = 1;
+            this.animationCounter = 0;
+        }
     }
 
     // Getter
