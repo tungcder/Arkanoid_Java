@@ -127,14 +127,13 @@ public class Ball {
 
             switch (side) {
                 case TOP -> { y = ry - 2 * radius; reflectByNormal(0, -1); }
-                case BOTTOM -> { y = ry + rh;      reflectByNormal(0,  1); }
+                case BOTTOM -> { y = ry + rh; reflectByNormal(0, 1); }
                 case LEFT -> { x = rx - 2 * radius; reflectByNormal(-1, 0); }
-                case RIGHT -> { x = rx + rw;        reflectByNormal( 1, 0); }
-                default -> { // corner or ambiguous: phản xạ theo vector từ điểm gần nhất
+                case RIGHT -> { x = rx + rw; reflectByNormal(1, 0); }
+                default -> {
                     double nx = clamp(cx, rx, rx + rw);
                     double ny = clamp(cy, ry, ry + rh);
                     reflectByNormal(cx - nx, cy - ny);
-                    // đẩy ra một chút theo normal
                     double nlen = Math.hypot(cx - nx, cy - ny);
                     if (nlen > 0) {
                         double push = (radius - nlen) + 0.1;
@@ -143,9 +142,11 @@ public class Ball {
                     }
                 }
             }
-            b.setDestroyed(true);
+            if (b.hit()) {
+                return b.getPowerup();
+            }
             clampSpeed();
-            break; // phá 1 viên mỗi frame
+            break;
         }
         return null;
     }

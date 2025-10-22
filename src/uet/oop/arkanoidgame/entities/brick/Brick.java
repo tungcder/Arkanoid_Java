@@ -105,7 +105,4 @@ public abstract class Brick {
 
     public Item getPowerup() { return powerup; }
     public void setPowerup(Item powerup) { this.powerup = powerup; }
-
-    public void setDestroyed(boolean b) {
-    }
 }
