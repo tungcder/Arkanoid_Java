@@ -16,17 +16,17 @@ public class Ball {
     private static final double CANVAS_W = 800;
     private static final double CANVAS_H = 600;
     private static final int FRAME_COUNT = 8;
-    private static final double FRAME_STEP  = 1.1;
+    private static final double FRAME_STEP  = 10;
 
     private static final double RESTITUTION = 1.0;   // hệ số đàn hồi
-    private static final double MAX_SPEED   = 7.0;   // kẹp tốc độ theo trục
+    private static final double MAX_SPEED   = 5.0;   // kẹp tốc độ theo trục
     private static final double MIN_ABS_DY  = 2.0;   // tránh trượt ngang
     private static final double PADDLE_SPIN = 5.0;   // độ bẻ ngang khi chạm paddle
 
     // ===== State =====
     private double x, y;              // góc trái–trên
     private double radius;
-    private double dx = 3, dy = -3;
+    private double dx = 1, dy = -1;
     private double prevX, prevY;      // vị trí frame trước để suy ra mặt chạm
 
     private final List<Image> frames = new ArrayList<>(FRAME_COUNT);
@@ -95,6 +95,8 @@ public class Ball {
         if (!circleIntersectsAABB(cx, cy, radius, rx, ry, rw, rh)) {
             return;
         }
+
+        paddle.handleHit();
 
         // Đặt lại vị trí cho bóng phía trên paddle (giả sử paddle nằm ngang)
         y = ry - 2 * radius;
