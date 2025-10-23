@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CodeGame" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="uet.oop.arkanoidgame.ArkanoidGame" />
+    <module name="Arkanoid_Java" />
+    <option name="VM_PARAMETERS" value="--module-path &quot;$javafx$&quot; --add-modules javafx.controls,javafx.fxml" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

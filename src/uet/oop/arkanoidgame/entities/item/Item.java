@@ -2,51 +2,49 @@ package uet.oop.arkanoidgame.entities.item;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import uet.oop.arkanoidgame.entities.ball.Ball;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 import java.util.Objects;
 
-/**
- * Abstract base class for items (buffs/debuffs) in the Arkanoid game.
- */
 public abstract class Item {
-    protected double x, y, width = 30, height = 30;
-    protected double fallSpeed = 2.0;
+    protected double x, y, width = 40, height = 40;
+    protected double fallSpeed = 1.0;
     protected Image image;
 
     public Item(double x, double y, String imagePath) {
-        this.x = x - width / 2; // Center on drop position
+        this.x = x - width / 2;
         this.y = y;
         try {
             this.image = new Image(Objects.requireNonNull(
                     getClass().getResourceAsStream(imagePath)
             ));
+            if (image.isError()) {
+                System.err.println("Lỗi load ảnh item: " + imagePath + " (isError=true)");
+                this.image = null; // Fallback
+            }
         } catch (NullPointerException e) {
-            System.err.println("Cannot load item image: " + imagePath);
+            System.err.println("Không tìm thấy file item: " + imagePath);
+            this.image = null;
         }
     }
 
-    /**
-     * Updates the item position (falls down).
-     */
     public void update() {
         y += fallSpeed;
     }
 
-    /**
-     * Renders the item.
-     * @param gc GraphicsContext.
-     */
     public void render(GraphicsContext gc) {
         if (image != null) {
             gc.drawImage(image, x, y, width, height);
+        } else {
+            // Fallback: Vẽ hình vuông màu xanh lá với viền đen
+            gc.setFill(Color.LIME);
+            gc.fillRect(x, y, width, height);
+            gc.setStroke(Color.BLACK);
+            gc.strokeRect(x, y, width, height);
         }
     }
 
-    /**
-     * Checks collision with paddle.
-     * @param paddle The paddle.
-     * @return true if collides.
-     */
     public boolean collidesWith(Paddle paddle) {
         return x < paddle.getX() + paddle.getWidth() &&
                 x + width > paddle.getX() &&
@@ -54,12 +52,7 @@ public abstract class Item {
                 y + height > paddle.getY();
     }
 
-    /**
-     * Applies the item effect to the paddle.
-     * @param paddle The paddle to apply to.
-     */
-    public abstract void apply(Paddle paddle);
+    public abstract void apply(Paddle paddle, Ball ball);
 
-    // Getters
     public double getY() { return y; }
 }

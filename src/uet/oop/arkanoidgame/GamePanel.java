@@ -1,7 +1,6 @@
 package uet.oop.arkanoidgame;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -11,7 +10,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import uet.oop.arkanoidgame.entities.ball.Ball;
@@ -101,7 +99,7 @@ public class GamePanel extends Canvas {
             if (item.getY() > getHeight()) {
                 iter.remove();
             } else if (item.collidesWith(paddle)) {
-                item.apply(paddle);
+                item.apply(paddle, ball);
                 iter.remove();
             }
         }
@@ -115,7 +113,7 @@ public class GamePanel extends Canvas {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, getWidth(), getHeight());
 
-        bricks.render(gc); // Đảm bảo BrickGrid có phương thức render
+        bricks.render(gc);
         paddle.render(gc);
         ball.render(gc);
 
