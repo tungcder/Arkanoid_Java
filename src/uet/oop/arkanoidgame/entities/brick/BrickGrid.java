@@ -9,8 +9,8 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class BrickGrid {
     private List<Brick> bricks = new ArrayList<>();
-    private static final double BRICK_WIDTH = 100;
-    private static final double BRICK_HEIGHT = 50;
+    private static final double BRICK_WIDTH = 80;
+    private static final double BRICK_HEIGHT = 40;
     private static final double GRID_OFFSET_X = 0;
     private static final double GRID_OFFSET_Y = 50;
 

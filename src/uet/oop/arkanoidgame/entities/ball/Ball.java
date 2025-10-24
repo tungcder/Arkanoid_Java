@@ -1,12 +1,15 @@
 package uet.oop.arkanoidgame.entities.ball;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import uet.oop.arkanoidgame.entities.brick.Brick;
 import uet.oop.arkanoidgame.entities.brick.BrickGrid;
-import uet.oop.arkanoidgame.entities.paddle.Paddle;
 import uet.oop.arkanoidgame.entities.item.Item;
+import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +21,35 @@ public class Ball {
     private static final int FRAME_COUNT = 8;
     private static final double FRAME_STEP = 1.1;
     private static final double RESTITUTION = 1.0;
-    private static final double MAX_SPEED = 7.0;
+    private static final double MAX_SPEED = 12.0;
     private static final double MIN_ABS_DY = 2.0;
+    private static final double EPS = 1e-6;
 
     private double x, y;
     private double radius;
-    private double dx = 3, dy = -3;
+    private double dx = 6, dy = -6;
     private double prevX, prevY;
 
     private final List<Image> frames = new ArrayList<>(FRAME_COUNT);
     private int currentFrame = 0, frameCounter = 0;
 
+    // === Ball attach/release ===
+    private boolean attachedToPaddle = true;
+
+    // === Buff tốc độ ===
     private double speedMultiplier = 1.0;
+    private double baseSpeed;
+    private Timeline speedBuffTimer;
+
+    // === Buff kích thước ===
+    private double sizeMultiplier = 1.0;
+    private double baseRadius;
+    private Timeline sizeBuffTimer;
+
+    // === Buff nổ (Explosive) ===
+    private boolean explosive = false;
+    private double explosionRadius = 0.0;
+    private Timeline explosiveTimer;
 
     public Ball(double x, double y, double radius) {
         this.x = x;
@@ -37,7 +57,17 @@ public class Ball {
         this.radius = radius;
         this.prevX = x;
         this.prevY = y;
+        this.baseRadius = radius;
+
         loadFrames();
+
+        // Lưu tốc độ gốc
+        baseSpeed = Math.hypot(dx, dy);
+        if (baseSpeed < EPS) {
+            baseSpeed = 5.0;
+            dx = 0;
+            dy = -baseSpeed;
+        }
     }
 
     private void loadFrames() {
@@ -54,12 +84,133 @@ public class Ball {
         }
     }
 
+    // =======================
+    // BALL ATTACH/RELEASE
+    // =======================
+    public void attachToPaddle(Paddle paddle) {
+        attachedToPaddle = true;
+        // đặt bóng ở giữa paddle, ngay phía trên
+        x = paddle.getX() + paddle.getWidth() / 2.0 - radius;
+        y = paddle.getY() - radius * 2.0;
+        dx = 0;
+        dy = 0;
+    }
+
+    public void releaseFromPaddle() {
+        if (!attachedToPaddle) return;
+        attachedToPaddle = false;
+        // phóng thẳng lên với tốc độ gốc (có MIN_ABS_DY đảm bảo không quá phẳng)
+        dx = 0;
+        dy = -baseSpeed;
+        clampSpeed();
+    }
+
+    public boolean isAttachedToPaddle() {
+        return attachedToPaddle;
+    }
+
+    // =======================
+    // QUẢN LÝ BUFF TỐC ĐỘ
+    // =======================
+    public void applySpeedBuff(double multiplier, double durationSeconds) {
+        if (speedBuffTimer != null) speedBuffTimer.stop();
+
+        speedMultiplier = multiplier;
+        renormalizeSpeed();
+
+        speedBuffTimer = new Timeline(new KeyFrame(
+                Duration.seconds(durationSeconds),
+                e -> {
+                    speedMultiplier = 1.0;
+                    renormalizeSpeed();
+                }
+        ));
+        speedBuffTimer.play();
+    }
+
+    private void renormalizeSpeed() {
+        double currentSpeed = Math.hypot(dx, dy);
+        double targetSpeed = baseSpeed * speedMultiplier;
+
+        if (currentSpeed < EPS) {
+            dx = 0;
+            dy = -targetSpeed;
+            return;
+        }
+
+        double scale = targetSpeed / currentSpeed;
+        dx *= scale;
+        dy *= scale;
+    }
+
+    // =======================
+    // QUẢN LÝ BUFF KÍCH THƯỚC
+    // =======================
+    public void applySizeBuff(double multiplier, double durationSeconds) {
+        if (sizeBuffTimer != null) sizeBuffTimer.stop();
+
+        sizeMultiplier = multiplier;
+        radius = baseRadius * sizeMultiplier;
+
+        sizeBuffTimer = new Timeline(new KeyFrame(
+                Duration.seconds(durationSeconds),
+                e -> {
+                    sizeMultiplier = 1.0;
+                    radius = baseRadius;
+                }
+        ));
+        sizeBuffTimer.play();
+    }
+
+    // =======================
+    // QUẢN LÝ BUFF NỔ (EXPLOSIVE)
+    // =======================
+    public void applyExplosiveBuff(double radius, double durationSeconds) {
+        if (explosiveTimer != null) explosiveTimer.stop();
+
+        this.explosive = true;
+        this.explosionRadius = Math.max(0.0, radius);
+
+        explosiveTimer = new Timeline(new KeyFrame(
+                Duration.seconds(durationSeconds),
+                e -> {
+                    this.explosive = false;
+                    this.explosionRadius = 0.0;
+                }
+        ));
+        explosiveTimer.play();
+    }
+
+    public boolean isExplosive() { return explosive; }
+    public double getExplosionRadius() { return explosionRadius; }
+
+    // =======================
+    // UPDATE / RENDER
+    // =======================
+    /** Update theo paddle (dùng cho trạng thái dính bóng) */
+    public void update(Paddle paddle, double canvasW, double canvasH) {
+        if (attachedToPaddle) {
+            // Bóng dính và đi theo paddle
+            x = paddle.getX() + paddle.getWidth() / 2.0 - radius;
+            y = paddle.getY() - radius * 2.0;
+            // hoạt ảnh khung hình vẫn chạy để bóng sống động
+            animate();
+        } else {
+            update(canvasW, canvasH);
+        }
+    }
+
+    /** Update theo paddle với kích thước canvas mặc định */
+    public void update(Paddle paddle) {
+        update(paddle, CANVAS_W, CANVAS_H);
+    }
+
     public void update(double canvasW, double canvasH) {
         prevX = x;
         prevY = y;
 
-        x += dx * speedMultiplier;
-        y += dy * speedMultiplier;
+        x += dx;
+        y += dy;
 
         double d = radius * 2;
         double cx = x + radius, cy = y + radius;
@@ -84,7 +235,14 @@ public class Ball {
         update(CANVAS_W, CANVAS_H);
     }
 
+    /** Kiểm tra bóng đã rơi khỏi màn hình chưa (để trừ mạng & respawn) */
+    public boolean isOutOfScreen(double canvasH) {
+        return (y + radius * 2.0) >= canvasH;
+    }
+
     public void checkCollision(Paddle paddle) {
+        if (attachedToPaddle) return; // đang dính thì không cần check va chạm
+
         double rx = paddle.getX();
         double ry = paddle.getY();
         double rw = paddle.getWidth();
@@ -101,15 +259,15 @@ public class Ball {
         dy = -Math.abs(dy) * RESTITUTION;
 
         double hitOffset = (cx - (rx + rw / 2.0)) / (rw / 2.0);
-        if (hitOffset < -1.0) hitOffset = -1.0;
-        if (hitOffset > 1.0) hitOffset = 1.0;
+        hitOffset = clamp(hitOffset, -1.0, 1.0);
 
         dx = hitOffset * MAX_SPEED;
-
         clampSpeed();
     }
 
     public Item checkCollision(BrickGrid grid) {
+        if (attachedToPaddle) return null; // đang dính thì chưa va gạch
+
         double cx = x + radius, cy = y + radius;
 
         for (Brick b : grid.getBricks()) {
@@ -119,6 +277,10 @@ public class Ball {
             if (!circleIntersectsAABB(cx, cy, radius, rx, ry, rw, rh)) continue;
 
             CollisionSide side = resolveSideUsingPrevious(prevX, prevY, x, y, radius, rx, ry, rw, rh);
+
+            // Tính điểm va chạm gần nhất để làm tâm vụ nổ (nếu có)
+            double impactX = clamp(cx, rx, rx + rw);
+            double impactY = clamp(cy, ry, ry + rh);
 
             switch (side) {
                 case TOP -> { y = ry - 2 * radius; reflectByNormal(0, -1); }
@@ -137,11 +299,23 @@ public class Ball {
                     }
                 }
             }
+
+            // Viên trúng trực tiếp
+            Item directDrop = null;
             if (b.hit()) {
-                return b.getPowerup();
+                directDrop = b.getPowerup();
             }
+
+            // Nếu có buff nổ → phá thêm các viên trong bán kính quanh điểm va chạm
+            Item splashDrop = null;
+            if (explosive && explosionRadius > 0.0) {
+                splashDrop = explodeAt(grid, impactX, impactY);
+            }
+
             clampSpeed();
-            break;
+
+            // Trả về item rơi: ưu tiên viên trúng trực tiếp, nếu không có thì viên do nổ
+            return (directDrop != null) ? directDrop : splashDrop;
         }
         return null;
     }
@@ -188,7 +362,6 @@ public class Ball {
         if (dx < -MAX_SPEED) dx = -MAX_SPEED;
         if (dy > MAX_SPEED) dy = MAX_SPEED;
         if (dy < -MAX_SPEED) dy = -MAX_SPEED;
-
         if (Math.abs(dy) < MIN_ABS_DY) dy = (dy >= 0 ? MIN_ABS_DY : -MIN_ABS_DY);
     }
 
@@ -202,7 +375,6 @@ public class Ball {
 
     private static CollisionSide resolveSideUsingPrevious(double px, double py, double x, double y,
                                                           double r, double rx, double ry, double rw, double rh) {
-        double d = r * 2;
         double pcx = px + r, pcy = py + r;
         double cx = x + r, cy = y + r;
 
@@ -235,11 +407,35 @@ public class Ball {
 
     private enum CollisionSide { NONE, TOP, BOTTOM, LEFT, RIGHT }
 
+    // ======= HỖ TRỢ NỔ =======
+    private Item explodeAt(BrickGrid grid, double ix, double iy) {
+        Item firstDrop = null;
+        if (!explosive || explosionRadius <= 0) return null;
+
+        for (Brick nb : grid.getBricks()) {
+            if (nb.isDestroyed()) continue;
+
+            double bx = nb.getX() + nb.getWidth()  / 2.0;
+            double by = nb.getY() + nb.getHeight() / 2.0;
+            double dist = Math.hypot(bx - ix, by - iy);
+
+            if (dist <= explosionRadius) {
+                if (nb.hit()) {
+                    Item drop = nb.getPowerup();
+                    if (firstDrop == null) firstDrop = drop;
+                }
+            }
+        }
+        return firstDrop;
+    }
+
+    // === Getter/Setter ===
     public double getX() { return x; }
     public double getY() { return y; }
     public double getRadius() { return radius; }
-
+    public void setRadius(double radius) { this.radius = radius; }
     public void setSpeedMultiplier(double multiplier) {
         this.speedMultiplier = multiplier;
+        renormalizeSpeed();
     }
 }

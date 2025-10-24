@@ -1,10 +1,16 @@
 package uet.oop.arkanoidgame.entities.brick;
 
 import javafx.scene.paint.Color;
-import uet.oop.arkanoidgame.entities.item.BiggerPaddle;
-import uet.oop.arkanoidgame.entities.item.FasterBall;
-import uet.oop.arkanoidgame.entities.item.Item;
-import uet.oop.arkanoidgame.entities.item.ReversePaddle;
+import uet.oop.arkanoidgame.entities.item.*;
+import uet.oop.arkanoidgame.entities.item.Buff_BiggerPaddle;
+import uet.oop.arkanoidgame.entities.item.Buff_BiggerBall;
+import uet.oop.arkanoidgame.entities.item.Buff_ExplosiveBall;
+import uet.oop.arkanoidgame.entities.item.Buff_ExtraLives;
+import uet.oop.arkanoidgame.entities.item.DeBuff_FastBall;
+import uet.oop.arkanoidgame.entities.item.DeBuff_SmallerBall;
+import uet.oop.arkanoidgame.entities.item.DeBuff_SmallerPaddle;
+import uet.oop.arkanoidgame.entities.item.DeBuff_ReversePaddle;
+import uet.oop.arkanoidgame.entities.item.Buff_SlowerBall;
 
 public class BrickPowerup extends Brick {
     private static final String IMAGE_PATH = "weak.png";
@@ -18,14 +24,26 @@ public class BrickPowerup extends Brick {
     public Item getPowerup() {
         if (destroyed && Math.random() < DROP_CHANCE) {
             // Chọn ngẫu nhiên giữa các vật phẩm
-            int itemType = (int) (Math.random() * 3); // 0: BiggerPaddle, 1: ReversePaddle, 2: FasterBall
+            int itemType = (int) (Math.random() * 9);
             switch (itemType) {
                 case 0:
-                    return new BiggerPaddle(x + width / 2, y + height);
+                    return new Buff_BiggerPaddle(x + width / 2, y + height);
                 case 1:
-                    return new ReversePaddle(x + width / 2, y + height);
+                    return new DeBuff_ReversePaddle(x + width / 2, y + height);
                 case 2:
-                    return new FasterBall(x + width / 2, y + height);
+                    return new DeBuff_FastBall(x + width / 2, y + height);
+                case 3:
+                    return new Buff_SlowerBall(x + width / 2, y + height);
+                case 4:
+                    return new Buff_BiggerBall(x + width / 2, y + height);
+                case 5:
+                    return new DeBuff_SmallerBall(x + width / 2, y + height);
+                case 6:
+                    return new DeBuff_SmallerPaddle(x + width / 2, y + height);
+                case 7:
+                    return new Buff_ExplosiveBall(x + width / 2, y + height);
+                case 8:
+                    return new Buff_ExtraLives( x + width / 2, y + height);
                 default:
                     return null; // Không bao giờ xảy ra
             }
