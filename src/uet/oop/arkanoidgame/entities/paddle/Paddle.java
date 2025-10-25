@@ -41,10 +41,10 @@ public class Paddle {
 
         try {
             Image frame1 = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleB1.png")
+                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleE1.png")
             ));
             Image frame2 = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleB2.png")
+                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleE2.png")
             ));
             paddleFrames.add(frame1);
             paddleFrames.add(frame2);
@@ -53,22 +53,26 @@ public class Paddle {
         }
     }
 
+    // Update vị trí theo bàn phím
     public void update() {
-        double moveSpeed = reverseDirection ? -speed : speed;
+        if (keys.contains(KeyCode.LEFT) && x > 0) x -= speed;
+        if (keys.contains(KeyCode.RIGHT) && x + width < CANVAS_WIDTH) x += speed;
 
-        if (keys.contains(KeyCode.LEFT)) x -= moveSpeed;
-        if (keys.contains(KeyCode.RIGHT)) x += moveSpeed;
+        // Nếu paddle đang ở frame 2 (frame "hit")
+        if (currentFrameIndex == 1) {
+            animationCounter++;
 
-        if (x < 0) x = 0;
-        if (x + width > CANVAS_WIDTH) x = CANVAS_WIDTH - width;
+            // Thời gian hiển thị frame 2
+            int hitFrameDuration = 30;
 
-        animationCounter++;
-        if (animationCounter >= ANIMATION_DELAY) {
-            animationCounter = 0;
-            currentFrameIndex = (currentFrameIndex + 1) % paddleFrames.size();
+            if (animationCounter >= hitFrameDuration) {
+                animationCounter = 0;
+                currentFrameIndex = 0; // Quay lại frame 1 (mặc định)
+            }
         }
     }
 
+    // Điều khiển paddle bằng chuột
     public void handleMouseMove(MouseEvent e) {
         double mouseX = e.getX();
         if (reverseDirection) {
@@ -77,12 +81,22 @@ public class Paddle {
         x = Math.max(0, Math.min(mouseX - width / 2, CANVAS_WIDTH - width));
     }
 
+    //Kiểm tra va chạm ball để load frame 2
+    public void handleHit() {
+        // Chỉ kích hoạt nếu đang ở frame 1
+        if (this.currentFrameIndex == 0) {
+            this.currentFrameIndex = 1;
+            this.animationCounter = 0;
+        }
+    }
+
     public void render(GraphicsContext gc) {
-        if (paddleFrames.isEmpty()) return;
+        if (paddleFrames.isEmpty()) {
+            return;
+        }
         Image currentFrame = paddleFrames.get(currentFrameIndex);
         gc.drawImage(currentFrame, x, y, width, height);
     }
-
 
     // Buff Paddle: Bigger / Smaller
 

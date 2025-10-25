@@ -19,15 +19,15 @@ public class Ball {
     private static final double CANVAS_W = 800;
     private static final double CANVAS_H = 600;
     private static final int FRAME_COUNT = 8;
-    private static final double FRAME_STEP = 1.1;
+    private static final double FRAME_STEP = 10;
     private static final double RESTITUTION = 1.0;
-    private static final double MAX_SPEED = 12.0;
+    private static final double MAX_SPEED = 5.0;
     private static final double MIN_ABS_DY = 2.0;
     private static final double EPS = 1e-6;
 
     private double x, y;
     private double radius;
-    private double dx = 6, dy = -6;
+    private double dx = 1, dy = -1;
     private double prevX, prevY;
 
     private final List<Image> frames = new ArrayList<>(FRAME_COUNT);
@@ -254,6 +254,8 @@ public class Ball {
         if (!circleIntersectsAABB(cx, cy, radius, rx, ry, rw, rh)) {
             return;
         }
+
+        paddle.handleHit(); //KIỂM TRA VA CHẠM GIỮA BALL VÀ PADDLE ĐỂ ĐỔI FRAME
 
         y = ry - 2 * radius;
         dy = -Math.abs(dy) * RESTITUTION;
