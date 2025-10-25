@@ -19,10 +19,10 @@ import uet.oop.arkanoidgame.entities.paddle.Paddle;
 import uet.oop.arkanoidgame.entities.menu.MainMenu;
 import uet.oop.arkanoidgame.entities.item.Item;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 public class GamePanel extends Canvas {
 
@@ -93,6 +93,8 @@ public class GamePanel extends Canvas {
                         resetForNextLevel();
                     } else if (bricks.isLevelComplete()) {
                         gameRunning = false;
+                        // Hiện màn complete ngay
+                        stop();
                         showGameCompleteScreen();
                     }
                 } else {
@@ -135,11 +137,13 @@ public class GamePanel extends Canvas {
             if (playerLives > 0) {
                 // Gắn lại bóng vào paddle (đợi người chơi click để thả)
                 ball.attachToPaddle(paddle);
-                // (tuỳ chọn) xoá buff tốc độ/nổ nếu muốn cân bằng:
-                // ball.applySpeedBuff(1.0, 0);
-                // ball.applyExplosiveBuff(0, 0);
+                // (optional) clear items nếu muốn
+                // items.clear();
             } else {
+                // Hết mạng → dừng ngay & show Game Over
                 gameRunning = false;
+                if (timer != null) timer.stop();
+                showGameOverScreen();
             }
         }
     }
@@ -157,14 +161,14 @@ public class GamePanel extends Canvas {
             item.render(gc);
         }
 
-        // (tuỳ chọn) Vẽ số mạng còn lại
+        // Vẽ số mạng còn lại
         gc.setFill(Color.WHITE);
         gc.fillText("Lives: " + playerLives, 10, 18);
     }
 
-    /** Reset khi qua màn mới: giữ mạng, giữ paddle; bóng dính lại. */
+    /** Reset khi qua màn mới: giữ mạng; bóng dính lại. */
     private void resetForNextLevel() {
-        // Đặt lại vị trí hợp lý và gắn bóng
+        // Đặt lại paddle/ball và gắn bóng
         paddle = new Paddle(350, 550, 140, 40);
         ball = new Ball(390, 500, 15);
         ball.attachToPaddle(paddle);
@@ -174,17 +178,13 @@ public class GamePanel extends Canvas {
         setOnKeyReleased(e -> paddle.removeKey(e.getCode()));
         this.setOnMouseMoved(paddle::handleMouseMove);
         this.setOnMouseDragged(paddle::handleMouseMove);
-
-        // Click lại để thả bóng
         this.setOnMouseClicked(e -> {
             if (ball.isAttachedToPaddle()) ball.releaseFromPaddle();
         });
 
-        // Xoá item đang rơi (cho gọn)
         items.clear();
     }
 
-    /** (Giữ lại nếu muốn reset cả 2 entity giữa chừng) */
     @SuppressWarnings("unused")
     private void resetBallAndPaddle() {
         ball = new Ball(390, 300, 15);
@@ -200,18 +200,22 @@ public class GamePanel extends Canvas {
         });
     }
 
+    // ====== OVERLAY HELPERS (có fallback nếu thiếu ảnh) ======
     private void showGameOverScreen() {
         StackPane overlay = new StackPane();
         overlay.setPrefSize(800, 600);
 
-        Image image = new Image(Objects.requireNonNull(
-                getClass().getResource("/uet/oop/arkanoidgame/entities/menu/menu_images/game_over.png"),
-                "Missing resource: game_over.png"
-        ).toExternalForm());
-        ImageView gameOverView = new ImageView(image);
-        gameOverView.setFitWidth(800);
-        gameOverView.setFitHeight(600);
-        gameOverView.setPreserveRatio(false);
+        URL url = getClass().getResource("/uet/oop/arkanoidgame/entities/menu/menu_images/game_over.png");
+        ImageView bg = new ImageView();
+        bg.setFitWidth(800);
+        bg.setFitHeight(600);
+        bg.setPreserveRatio(false);
+        if (url != null) {
+            bg.setImage(new Image(url.toExternalForm()));
+        } else {
+            overlay.setStyle("-fx-background-color: #101018;");
+            System.err.println("⚠ Missing resource: game_over.png");
+        }
 
         Button backToMenu = new Button("Back to Menu");
         backToMenu.setStyle(
@@ -220,22 +224,21 @@ public class GamePanel extends Canvas {
                         "-fx-text-fill: black; " +
                         "-fx-background-radius: 10;"
         );
-
         backToMenu.setOnMouseEntered(e ->
                 backToMenu.setStyle("-fx-font-size: 22px; -fx-background-color: #ffaa00; -fx-text-fill: white; -fx-background-radius: 10;")
         );
         backToMenu.setOnMouseExited(e ->
                 backToMenu.setStyle("-fx-font-size: 22px; -fx-background-color: #ffcc00; -fx-text-fill: black; -fx-background-radius: 10;")
         );
-
         backToMenu.setOnAction(e -> {
             mapManager.resetGame();
+            playerLives = 3;
             MainMenu menu = new MainMenu(stage);
             stage.setScene(new Scene(menu, 800, 600));
         });
 
         StackPane.setAlignment(backToMenu, Pos.CENTER);
-        overlay.getChildren().addAll(gameOverView, backToMenu);
+        overlay.getChildren().addAll(bg, backToMenu);
 
         gamePane.getChildren().add(overlay);
     }
@@ -244,14 +247,17 @@ public class GamePanel extends Canvas {
         StackPane overlay = new StackPane();
         overlay.setPrefSize(800, 600);
 
-        Image image = new Image(Objects.requireNonNull(
-                getClass().getResource("/uet/oop/arkanoidgame/entities/menu/menu_images/game_complete.png"),
-                "Missing resource: game_complete.png"
-        ).toExternalForm());
-        ImageView gameCompleteView = new ImageView(image);
-        gameCompleteView.setFitWidth(800);
-        gameCompleteView.setFitHeight(600);
-        gameCompleteView.setPreserveRatio(false);
+        URL url = getClass().getResource("/uet/oop/arkanoidgame/entities/menu/menu_images/game_complete.png");
+        ImageView bg = new ImageView();
+        bg.setFitWidth(800);
+        bg.setFitHeight(600);
+        bg.setPreserveRatio(false);
+        if (url != null) {
+            bg.setImage(new Image(url.toExternalForm()));
+        } else {
+            overlay.setStyle("-fx-background-color: #101018;");
+            System.err.println("⚠ Missing resource: game_complete.png");
+        }
 
         Button backToMenu = new Button("Back to Menu");
         backToMenu.setStyle(
@@ -260,22 +266,21 @@ public class GamePanel extends Canvas {
                         "-fx-text-fill: black; " +
                         "-fx-background-radius: 10;"
         );
-
         backToMenu.setOnMouseEntered(e ->
                 backToMenu.setStyle("-fx-font-size: 22px; -fx-background-color: #ffaa00; -fx-text-fill: white; -fx-background-radius: 10;")
         );
         backToMenu.setOnMouseExited(e ->
                 backToMenu.setStyle("-fx-font-size: 22px; -fx-background-color: #ffcc00; -fx-text-fill: black; -fx-background-radius: 10;")
         );
-
         backToMenu.setOnAction(e -> {
             mapManager.resetGame();
+            playerLives = 3;
             MainMenu menu = new MainMenu(stage);
             stage.setScene(new Scene(menu, 800, 600));
         });
 
         StackPane.setAlignment(backToMenu, Pos.CENTER);
-        overlay.getChildren().addAll(gameCompleteView, backToMenu);
+        overlay.getChildren().addAll(bg, backToMenu);
 
         gamePane.getChildren().add(overlay);
     }
