@@ -1,19 +1,25 @@
 package uet.oop.arkanoidgame;
 
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import uet.oop.arkanoidgame.entities.ball.Ball;
 import uet.oop.arkanoidgame.entities.brick.BrickGrid;
+import uet.oop.arkanoidgame.entities.data.Score;
 import uet.oop.arkanoidgame.entities.map.MapManager;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 import uet.oop.arkanoidgame.entities.menu.MainMenu;
@@ -37,6 +43,8 @@ public class GamePanel extends Canvas {
     public static int playerLives = 3;
     private final List<Item> items = new ArrayList<>();
 
+    private Score scoreManager;
+
     public GamePanel(Stage stage) {
         super(800, 600);
         this.stage = stage;
@@ -50,6 +58,9 @@ public class GamePanel extends Canvas {
         ball = new Ball(390, 500, 15);
         bricks = new BrickGrid("src/main/resources/Levels/Map1.csv");
         mapManager.loadLevel(bricks);
+
+        // Init Score Manager
+        this.scoreManager = new Score();
 
         // Ball starts attached to paddle
         ball.attachToPaddle(paddle);
@@ -80,6 +91,9 @@ public class GamePanel extends Canvas {
     public void startGame() {
         GraphicsContext gc = getGraphicsContext2D();
 
+        // Reset điểm/thời gian cho màn chơi mới
+        scoreManager.startNewGame();
+
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -95,6 +109,7 @@ public class GamePanel extends Canvas {
                         gameRunning = false;
                         // Hiện màn complete ngay
                         stop();
+                        scoreManager.recordGameEnd();
                         showGameCompleteScreen();
                     }
                 } else {
@@ -113,7 +128,18 @@ public class GamePanel extends Canvas {
 
         // Va chạm
         ball.checkCollision(paddle);
+        int bricksBefore = bricks.getActiveBrickCount();
         Item spawned = ball.checkCollision(bricks);
+        int bricksAfter = bricks.getActiveBrickCount();
+
+        if (bricksBefore > bricksAfter) {
+            // Đã có gạch bị vỡ
+            int bricksBroken = bricksBefore - bricksAfter;
+            for (int i = 0; i < bricksBroken; i++) {
+                scoreManager.brickBroken(); // Cộng 10 điểm cho mỗi viên gạch vỡ
+            }
+        }
+
         if (spawned != null) items.add(spawned);
 
         // Update items
@@ -161,9 +187,18 @@ public class GamePanel extends Canvas {
             item.render(gc);
         }
 
-        // Vẽ số mạng còn lại
         gc.setFill(Color.WHITE);
-        gc.fillText("Lives: " + playerLives, 10, 18);
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+
+        // Vẽ số mạng còn lại
+        gc.fillText("Lives: " + playerLives, 10, 20);
+
+        // Vẽ điểm số
+        gc.fillText("Score: " + scoreManager.getCurrentScore(), 10, 40);
+
+        // Vẽ thời gian
+        String timeText = "Time: " + scoreManager.getFormattedCurrentTime();
+        gc.fillText(timeText, getWidth() - 100, 20);
     }
 
     /** Reset khi qua màn mới: giữ mạng; bóng dính lại. */

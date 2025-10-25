@@ -59,4 +59,15 @@ public class BrickGrid {
     public List<Brick> getBricks() {
         return bricks;
     }
+
+    public int getActiveBrickCount() {
+        int count = 0;
+
+        for (Brick b : this.bricks) {
+            if (!b.isDestroyed()) {
+                count++;
+            }
+        }
+        return count;
+    }
 }
