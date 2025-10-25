@@ -1,4 +1,4 @@
-package uet.oop.arkanoidgame.utils;
+package uet.oop.arkanoidgame;
 
 public class GameConstants {
     public static final int WIDTH = 800;

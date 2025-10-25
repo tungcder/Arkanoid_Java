@@ -2,10 +2,8 @@ package uet.oop.arkanoidgame;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import uet.oop.arkanoidgame.entities.menu.MainMenu;
-import uet.oop.arkanoidgame.utils.GameConstants;
 
 public class ArkanoidGame extends Application {
 

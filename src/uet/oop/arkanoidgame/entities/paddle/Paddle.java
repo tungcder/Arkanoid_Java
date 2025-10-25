@@ -14,7 +14,7 @@ public class Paddle {
     private double x, y, width, height;
     private double speed = 12;
     private Set<KeyCode> keys = new HashSet<>();
-    private static final double CANVAS_WIDTH = 800;
+    private static final double CANVAS_WIDTH = 600;
 
     private List<Image> paddleFrames;
     private int currentFrameIndex;
