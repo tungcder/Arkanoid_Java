@@ -6,7 +6,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Glow;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -19,273 +18,273 @@ import javafx.scene.text.FontWeight;
  * Class quản lý khung STATUS hiển thị thông tin game
  */
 public class GameStatusPanel {
-    private final VBox hudBox;
+    // Constants - Dimensions
+    private static final int PANEL_WIDTH = 250;
+    private static final int PANEL_HEIGHT = 600;
+    private static final int BUTTON_WIDTH = 150;
 
-    // Labels hiển thị thông tin
-    private final Label livesLabel = new Label();
-    private final Label livesValue = new Label();
-    private final Label scoreLabel = new Label();
-    private final Label scoreValue = new Label();
-    private final Label timeLabel = new Label();
-    private final Label timeValue = new Label();
-    private final Label buffLabel = new Label();
-    private final Label buffValue = new Label();
-    private final Label debuffLabel = new Label();
-    private final Label debuffValue = new Label();
+    // Constants - Colors
+    private static final String GOLD_COLOR = "#FFD700";
+    private static final String CYAN_COLOR = "#00FFEA";
+    private static final String ORANGE_COLOR = "#FFA500";
+    private static final String GREEN_COLOR = "#7CFC00";
+    private static final String RED_COLOR = "#FF6B6B";
+    private static final String WHITE_COLOR = "#FFFFFF";
+
+    // Constants - Button Colors
+    private static final String PAUSE_GRADIENT = "#5CDB5C, #4CAF50";
+    private static final String PAUSE_HOVER_GRADIENT = "#6FEE6F, #5CDB5C";
+    private static final String RESUME_GRADIENT = "#FFB84D, #FF9800";
+    private static final String PAUSE_BORDER = "#45a049";
+    private static final String RESUME_BORDER = "#F57C00";
+
+    // Constants - Paths & Icons
+    private static final String FONT_BOLD_PATH = "/fonts/Orbitron-Bold.ttf";
+    private static final String FONT_REGULAR_PATH = "/fonts/Orbitron-Regular.ttf";
+    private static final String ICON_LIVES = "❤";
+    private static final String ICON_SCORE = "★";
+    private static final String ICON_TIME = "⏱";
+    private static final String ICON_BUFF = "↑";
+    private static final String ICON_DEBUFF = "↓";
+
+    // UI Components
+    private final VBox hudBox;
     private final Button pauseButton;
 
-    // Fonts
-    private Font orbitronBold;
-    private Font orbitronRegular;
-    private Font orbitronMedium;
-    private final DropShadow titleGlow = new DropShadow();
-    private final DropShadow buttonGlow = new DropShadow();
+    // Status Labels
+    private final Label livesValue = new Label();
+    private final Label scoreValue = new Label();
+    private final Label timeValue = new Label();
+    private final Label buffValue = new Label();
+    private final Label debuffValue = new Label();
 
-    // Callback khi nhấn pause
+    // Effects
+    private final DropShadow titleGlow;
+    private final DropShadow buttonGlow;
+
+    // Callback
     private Runnable onPauseToggle;
 
     public GameStatusPanel() {
-        loadFonts();
-        pauseButton = createPauseButton();
-        hudBox = createHUD();
+        this.titleGlow = createTitleGlow();
+        this.buttonGlow = createButtonGlow();
+        this.pauseButton = createPauseButton();
+        this.hudBox = createHUD();
     }
 
-    private void loadFonts() {
-        try {
-            orbitronBold = Font.loadFont(
-                    getClass().getResourceAsStream("/fonts/Orbitron-Bold.ttf"), 32
-            );
-            orbitronMedium = Font.loadFont(
-                    getClass().getResourceAsStream("/fonts/Orbitron-Bold.ttf"), 20
-            );
-            orbitronRegular = Font.loadFont(
-                    getClass().getResourceAsStream("/fonts/Orbitron-Regular.ttf"), 16
-            );
+    private DropShadow createTitleGlow() {
+        DropShadow glow = new DropShadow();
+        glow.setRadius(20);
+        glow.setColor(Color.web(GOLD_COLOR, 0.8));
+        return glow;
+    }
 
-            if (orbitronBold == null) {
-                orbitronBold = Font.font("System", FontWeight.BOLD, 32);
-            }
-            if (orbitronMedium == null) {
-                orbitronMedium = Font.font("System", FontWeight.BOLD, 20);
-            }
-            if (orbitronRegular == null) {
-                orbitronRegular = Font.font("System", 16);
-            }
-        } catch (Exception e) {
-            orbitronBold = Font.font("System", FontWeight.BOLD, 32);
-            orbitronMedium = Font.font("System", FontWeight.BOLD, 20);
-            orbitronRegular = Font.font("System", 16);
-            System.err.println("Warning: couldn't load Orbitron fonts, using system fonts.");
-        }
-
-        // Glow effect cho title
-        titleGlow.setRadius(20);
-        titleGlow.setColor(Color.web("#FFD700", 0.8));
-
-        // Glow effect cho button
-        buttonGlow.setRadius(12);
-        buttonGlow.setColor(Color.web("#4CAF50", 0.6));
+    private DropShadow createButtonGlow() {
+        DropShadow glow = new DropShadow();
+        glow.setRadius(12);
+        glow.setColor(Color.web("#4CAF50", 0.6));
+        return glow;
     }
 
     private Button createPauseButton() {
         Button btn = new Button("⏸  PAUSE");
         btn.setFont(Font.font("System", FontWeight.BOLD, 13));
-        btn.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, #5CDB5C, #4CAF50); " +
-                        "-fx-text-fill: white; " +
-                        "-fx-background-radius: 10; " +
-                        "-fx-padding: 10 20; " +
-                        "-fx-cursor: hand; " +
-                        "-fx-border-color: #45a049; " +
-                        "-fx-border-width: 2; " +
-                        "-fx-border-radius: 10;"
-        );
-        btn.setPrefWidth(150);
+        btn.setPrefWidth(BUTTON_WIDTH);
         btn.setEffect(buttonGlow);
 
-        // Hover effects
-        btn.setOnMouseEntered(e -> {
-            btn.setStyle(
-                    "-fx-background-color: linear-gradient(to bottom, #6FEE6F, #5CDB5C); " +
-                            "-fx-text-fill: white; " +
-                            "-fx-background-radius: 10; " +
-                            "-fx-padding: 10 20; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-border-color: #4CAF50; " +
-                            "-fx-border-width: 2; " +
-                            "-fx-border-radius: 10; " +
-                            "-fx-scale-x: 1.05; " +
-                            "-fx-scale-y: 1.05;"
-            );
-        });
-
-        btn.setOnMouseExited(e -> {
-            if (btn.getText().contains("RESUME")) {
-                btn.setStyle(
-                        "-fx-background-color: linear-gradient(to bottom, #FFB84D, #FF9800); " +
-                                "-fx-text-fill: white; " +
-                                "-fx-background-radius: 10; " +
-                                "-fx-padding: 10 20; " +
-                                "-fx-cursor: hand; " +
-                                "-fx-border-color: #F57C00; " +
-                                "-fx-border-width: 2; " +
-                                "-fx-border-radius: 10;"
-                );
-            } else {
-                btn.setStyle(
-                        "-fx-background-color: linear-gradient(to bottom, #5CDB5C, #4CAF50); " +
-                                "-fx-text-fill: white; " +
-                                "-fx-background-radius: 10; " +
-                                "-fx-padding: 10 20; " +
-                                "-fx-cursor: hand; " +
-                                "-fx-border-color: #45a049; " +
-                                "-fx-border-width: 2; " +
-                                "-fx-border-radius: 10;"
-                );
-            }
-        });
-
-        btn.setOnAction(e -> {
-            if (onPauseToggle != null) {
-                onPauseToggle.run();
-            }
-        });
+        applyPauseButtonStyle(btn, false, false);
+        setupButtonInteractions(btn);
 
         return btn;
     }
 
+    private void setupButtonInteractions(Button btn) {
+        btn.setOnMouseEntered(e -> handleButtonHover(btn, true));
+        btn.setOnMouseExited(e -> handleButtonHover(btn, false));
+        btn.setOnAction(e -> {
+            if (onPauseToggle != null) onPauseToggle.run();
+        });
+    }
+
+    private void handleButtonHover(Button btn, boolean isHovered) {
+        boolean isResumeMode = btn.getText().contains("RESUME");
+        applyPauseButtonStyle(btn, isResumeMode, isHovered);
+    }
+
+    private void applyPauseButtonStyle(Button btn, boolean isResumeMode, boolean isHovered) {
+        String gradient, borderColor;
+
+        if (isResumeMode) {
+            gradient = RESUME_GRADIENT;
+            borderColor = RESUME_BORDER;
+        } else {
+            gradient = isHovered ? PAUSE_HOVER_GRADIENT : PAUSE_GRADIENT;
+            borderColor = PAUSE_BORDER;
+        }
+
+        String scale = isHovered ? "-fx-scale-x: 1.05; -fx-scale-y: 1.05;" : "";
+
+        btn.setStyle(String.format(
+                "-fx-background-color: linear-gradient(to bottom, %s); " +
+                        "-fx-text-fill: white; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-padding: 10 20; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-border-color: %s; " +
+                        "-fx-border-width: 2; " +
+                        "-fx-border-radius: 10; %s",
+                gradient, borderColor, scale
+        ));
+    }
+
     private VBox createHUD() {
         VBox box = new VBox(12);
-        box.setPrefWidth(250);
-        box.setPrefHeight(600);
-        box.setMaxHeight(600);
+        box.setPrefWidth(PANEL_WIDTH);
+        box.setPrefHeight(PANEL_HEIGHT);
+        box.setMaxHeight(PANEL_HEIGHT);
         box.setAlignment(Pos.TOP_CENTER);
         box.setPadding(new Insets(18, 16, 16, 16));
+        box.setStyle(createHUDStyle());
 
-        // Gradient background với viền sáng
-        String bgStyle =
-                "-fx-background-color: " +
-                        "linear-gradient(to bottom, rgba(30,30,40,0.98), rgba(15,15,25,0.98)); " +
-                        "-fx-background-radius: 12; " +
-                        "-fx-border-color: linear-gradient(to bottom, rgba(100,100,120,0.5), rgba(60,60,80,0.5)); " +
-                        "-fx-border-width: 2; " +
-                        "-fx-border-radius: 12; " +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 15, 0, 0, 5);";
-        box.setStyle(bgStyle);
+        Label title = createTitle();
+        Rectangle topLine = createDecorativeLine();
+        Region spacer = createSpacer(5);
 
-        // STATUS title với animation effect
-        Label title = new Label("STATUS");
-        title.setFont(Font.font("System", FontWeight.BOLD, 26));
-        title.setTextFill(Color.web("#FFD700"));
-        title.setEffect(titleGlow);
+        VBox livesBox = createStatBox("LIVES", livesValue, CYAN_COLOR, ICON_LIVES);
+        VBox scoreBox = createStatBox("SCORE", scoreValue, WHITE_COLOR, ICON_SCORE);
+        VBox timeBox = createStatBox("TIME", timeValue, ORANGE_COLOR, ICON_TIME);
 
-        // Decorative line
-        Rectangle topLine = new Rectangle(160, 2);
-        topLine.setFill(Color.web("#FFD700", 0.6));
-        topLine.setArcWidth(2);
-        topLine.setArcHeight(2);
+        Separator separator = createSeparator();
 
-        Region spacer1 = new Region();
-        spacer1.setPrefHeight(5);
+        VBox buffBox = createEffectBox("BUFF", buffValue, GREEN_COLOR, ICON_BUFF);
+        VBox debuffBox = createEffectBox("DEBUFF", debuffValue, RED_COLOR, ICON_DEBUFF);
 
-        // Lives section
-        VBox livesBox = createStatBox("LIVES", livesLabel, livesValue, "#00FFEA", "❤");
-
-        // Score section
-        VBox scoreBox = createStatBox("SCORE", scoreLabel, scoreValue, "#FFFFFF", "★");
-
-        // Time section
-        VBox timeBox = createStatBox("TIME", timeLabel, timeValue, "#FFA500", "⏱");
-
-        // Separator
-        Separator sep = new Separator();
-        sep.setStyle("-fx-background-color: rgba(255,255,255,0.2);");
-        sep.setPrefWidth(180);
-
-        // Buff section
-        VBox buffBox = createEffectBox("BUFF", buffLabel, buffValue, "#7CFC00", "↑");
-
-        // Debuff section
-        VBox debuffBox = createEffectBox("DEBUFF", debuffLabel, debuffValue, "#FF6B6B", "↓");
-
-        // Thêm tất cả vào box
         box.getChildren().addAll(
-                title, topLine, spacer1,
-                pauseButton,
-                createSpacer(8),
-                livesBox,
-                scoreBox,
-                timeBox,
-                sep,
-                buffBox,
-                debuffBox
+                title, topLine, spacer, pauseButton,
+                createSpacer(8), livesBox, scoreBox, timeBox,
+                separator, buffBox, debuffBox
         );
 
         return box;
     }
 
-    private VBox createStatBox(String label, Label labelNode, Label valueNode, String color, String icon) {
+    private String createHUDStyle() {
+        return "-fx-background-color: " +
+                "linear-gradient(to bottom, rgba(30,30,40,0.98), rgba(15,15,25,0.98)); " +
+                "-fx-background-radius: 12; " +
+                "-fx-border-color: linear-gradient(to bottom, " +
+                "rgba(100,100,120,0.5), rgba(60,60,80,0.5)); " +
+                "-fx-border-width: 2; " +
+                "-fx-border-radius: 12; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 15, 0, 0, 5);";
+    }
+
+    private Label createTitle() {
+        Label title = new Label("STATUS");
+        title.setFont(Font.font("System", FontWeight.BOLD, 26));
+        title.setTextFill(Color.web(GOLD_COLOR));
+        title.setEffect(titleGlow);
+        return title;
+    }
+
+    private Rectangle createDecorativeLine() {
+        Rectangle line = new Rectangle(160, 2);
+        line.setFill(Color.web(GOLD_COLOR, 0.6));
+        line.setArcWidth(2);
+        line.setArcHeight(2);
+        return line;
+    }
+
+    private Separator createSeparator() {
+        Separator sep = new Separator();
+        sep.setStyle("-fx-background-color: rgba(255,255,255,0.2);");
+        sep.setPrefWidth(180);
+        return sep;
+    }
+
+    private VBox createStatBox(String labelText, Label valueLabel,
+                               String color, String icon) {
         VBox container = new VBox(4);
         container.setAlignment(Pos.CENTER);
         container.setPadding(new Insets(6, 8, 6, 8));
-        container.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.05); " +
-                        "-fx-background-radius: 8; " +
-                        "-fx-border-color: rgba(255,255,255,0.1); " +
-                        "-fx-border-width: 1; " +
-                        "-fx-border-radius: 8;"
-        );
+        container.setStyle(createStatBoxStyle());
 
-        // Label header
-        HBox headerBox = new HBox(6);
-        headerBox.setAlignment(Pos.CENTER);
+        HBox headerBox = createStatHeader(labelText, color, icon);
+        configureValueLabel(valueLabel, color, 18);
 
-        Label iconLabel = new Label(icon);
-        iconLabel.setFont(Font.font("System", 14));
-        iconLabel.setTextFill(Color.web(color));
-
-        labelNode.setText(label);
-        labelNode.setFont(Font.font("System", FontWeight.BOLD, 12));
-        labelNode.setTextFill(Color.web(color, 0.8));
-
-        headerBox.getChildren().addAll(iconLabel, labelNode);
-
-        // Value
-        valueNode.setFont(Font.font("System", FontWeight.BOLD, 18));
-        valueNode.setTextFill(Color.web(color));
-
-        DropShadow glow = new DropShadow();
-        glow.setRadius(6);
-        glow.setColor(Color.web(color, 0.5));
-        valueNode.setEffect(glow);
-
-        container.getChildren().addAll(headerBox, valueNode);
+        container.getChildren().addAll(headerBox, valueLabel);
         return container;
     }
 
-    private VBox createEffectBox(String label, Label labelNode, Label valueNode, String color, String icon) {
+    private String createStatBoxStyle() {
+        return "-fx-background-color: rgba(255,255,255,0.05); " +
+                "-fx-background-radius: 8; " +
+                "-fx-border-color: rgba(255,255,255,0.1); " +
+                "-fx-border-width: 1; " +
+                "-fx-border-radius: 8;";
+    }
+
+    private HBox createStatHeader(String labelText, String color, String icon) {
+        HBox headerBox = new HBox(6);
+        headerBox.setAlignment(Pos.CENTER);
+
+        Label iconLabel = createIconLabel(icon, color, 14);
+        Label textLabel = createTextLabel(labelText, color, 12, 0.8);
+
+        headerBox.getChildren().addAll(iconLabel, textLabel);
+        return headerBox;
+    }
+
+    private VBox createEffectBox(String labelText, Label valueLabel,
+                                 String color, String icon) {
         VBox container = new VBox(3);
         container.setAlignment(Pos.CENTER_LEFT);
         container.setPadding(new Insets(5, 10, 5, 10));
 
+        HBox headerBox = createEffectHeader(labelText, color, icon);
+        configureValueLabel(valueLabel, color, 14, 0.95);
+
+        container.getChildren().addAll(headerBox, valueLabel);
+        return container;
+    }
+
+    private HBox createEffectHeader(String labelText, String color, String icon) {
         HBox headerBox = new HBox(5);
         headerBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label iconLabel = new Label(icon);
-        iconLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
-        iconLabel.setTextFill(Color.web(color));
+        Label iconLabel = createIconLabel(icon, color, 12);
+        Label textLabel = createTextLabel(labelText, color, 11, 0.9);
 
-        labelNode.setText(label);
-        labelNode.setFont(Font.font("System", FontWeight.BOLD, 11));
-        labelNode.setTextFill(Color.web(color, 0.9));
+        headerBox.getChildren().addAll(iconLabel, textLabel);
+        return headerBox;
+    }
 
-        headerBox.getChildren().addAll(iconLabel, labelNode);
+    private Label createIconLabel(String icon, String color, int size) {
+        Label label = new Label(icon);
+        label.setFont(Font.font("System", size));
+        label.setTextFill(Color.web(color));
+        return label;
+    }
 
-        valueNode.setFont(Font.font("System", 14));
-        valueNode.setTextFill(Color.web(color, 0.95));
+    private Label createTextLabel(String text, String color, int size, double opacity) {
+        Label label = new Label(text);
+        label.setFont(Font.font("System", FontWeight.BOLD, size));
+        label.setTextFill(Color.web(color, opacity));
+        return label;
+    }
 
-        container.getChildren().addAll(headerBox, valueNode);
-        return container;
+    private void configureValueLabel(Label label, String color, int size) {
+        configureValueLabel(label, color, size, 1.0);
+    }
+
+    private void configureValueLabel(Label label, String color, int size, double opacity) {
+        label.setFont(Font.font("System", FontWeight.BOLD, size));
+        label.setTextFill(Color.web(color, opacity));
+
+        DropShadow glow = new DropShadow();
+        glow.setRadius(6);
+        glow.setColor(Color.web(color, 0.5));
+        label.setEffect(glow);
     }
 
     private Region createSpacer(double height) {
@@ -294,46 +293,34 @@ public class GameStatusPanel {
         return spacer;
     }
 
-    /**
-     * Cập nhật hiển thị Lives
-     */
+    // Public Update Methods
+
     public void updateLives(int lives) {
         livesValue.setText(String.valueOf(lives));
     }
 
-    /**
-     * Cập nhật hiển thị Score
-     */
     public void updateScore(int score) {
         scoreValue.setText(String.valueOf(score));
     }
 
-    /**
-     * Cập nhật hiển thị Time
-     */
     public void updateTime(int seconds) {
         int minutes = seconds / 60;
         int secs = seconds % 60;
         timeValue.setText(String.format("%02d:%02d", minutes, secs));
     }
 
-    /**
-     * Cập nhật hiển thị Buff
-     */
     public void updateBuff(String buffText, int buffTime) {
-        buffValue.setText(buffText + (buffTime > 0 ? " (" + buffTime + "s)" : ""));
+        buffValue.setText(formatEffectText(buffText, buffTime));
     }
 
-    /**
-     * Cập nhật hiển thị Debuff
-     */
     public void updateDebuff(String debuffText, int debuffTime) {
-        debuffValue.setText(debuffText + (debuffTime > 0 ? " (" + debuffTime + "s)" : ""));
+        debuffValue.setText(formatEffectText(debuffText, debuffTime));
     }
 
-    /**
-     * Cập nhật tất cả thông tin cùng lúc
-     */
+    private String formatEffectText(String text, int time) {
+        return text + (time > 0 ? " (" + time + "s)" : "");
+    }
+
     public void updateAll(int lives, int score, int seconds,
                           String buffText, int buffTime,
                           String debuffText, int debuffTime) {
@@ -344,52 +331,38 @@ public class GameStatusPanel {
         updateDebuff(debuffText, debuffTime);
     }
 
-    /**
-     * Đặt trạng thái nút Pause
-     */
     public void setPauseButtonState(boolean isPaused) {
         if (isPaused) {
             pauseButton.setText("▶  RESUME");
-            pauseButton.setStyle(
-                    "-fx-background-color: linear-gradient(to bottom, #FFB84D, #FF9800); " +
-                            "-fx-text-fill: white; " +
-                            "-fx-background-radius: 10; " +
-                            "-fx-padding: 10 20; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-border-color: #F57C00; " +
-                            "-fx-border-width: 2; " +
-                            "-fx-border-radius: 10;"
-            );
-            DropShadow resumeGlow = new DropShadow();
-            resumeGlow.setRadius(12);
-            resumeGlow.setColor(Color.web("#FF9800", 0.6));
-            pauseButton.setEffect(resumeGlow);
+            applyResumeButtonStyle();
         } else {
             pauseButton.setText("⏸  PAUSE");
-            pauseButton.setStyle(
-                    "-fx-background-color: linear-gradient(to bottom, #5CDB5C, #4CAF50); " +
-                            "-fx-text-fill: white; " +
-                            "-fx-background-radius: 10; " +
-                            "-fx-padding: 10 20; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-border-color: #45a049; " +
-                            "-fx-border-width: 2; " +
-                            "-fx-border-radius: 10;"
-            );
-            pauseButton.setEffect(buttonGlow);
+            applyPauseButtonStyle(pauseButton, false, false);
         }
     }
 
-    /**
-     * Đặt callback khi nhấn nút pause
-     */
+    private void applyResumeButtonStyle() {
+        pauseButton.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, " + RESUME_GRADIENT + "); " +
+                        "-fx-text-fill: white; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-padding: 10 20; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-border-color: " + RESUME_BORDER + "; " +
+                        "-fx-border-width: 2; " +
+                        "-fx-border-radius: 10;"
+        );
+
+        DropShadow resumeGlow = new DropShadow();
+        resumeGlow.setRadius(12);
+        resumeGlow.setColor(Color.web("#FF9800", 0.6));
+        pauseButton.setEffect(resumeGlow);
+    }
+
     public void setOnPauseToggle(Runnable callback) {
         this.onPauseToggle = callback;
     }
 
-    /**
-     * Lấy VBox chứa toàn bộ HUD
-     */
     public VBox getHudBox() {
         return hudBox;
     }
