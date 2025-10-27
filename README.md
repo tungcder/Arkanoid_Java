@@ -1,3 +1,5 @@
 # Arkanoid_Java
 
-Bản thiết kế: <img width="1796" height="1283" alt="Thiết kế OOP_ARKANOID drawio" src="https://github.com/user-attachments/assets/f5944b97-c0fd-4c84-a758-c6fbc2c02958" />
+Bản thiết kế: 
+
+<img width="1796" height="1364" alt="Thiết kế OOP_ARKANOID drawio (2)" src="https://github.com/user-attachments/assets/39010691-62ed-4533-8829-ee04301fd583" />
