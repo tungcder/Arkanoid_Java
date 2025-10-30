@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 
 public class BrickMove extends Brick {
-    private static final String IMAGE_PATH = "move.png";
+    private static final String IMAGE_PATH = "weak.png";
     private static final double SPEED = 2.0;
     private int direction = 1;
 

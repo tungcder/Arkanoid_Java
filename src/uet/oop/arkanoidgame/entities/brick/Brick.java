@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 /**
  * Lớp cơ sở cho các loại Brick trong game Arkanoid.
- * Hỗ trợ load ảnh từ resources, fallback khi không tìm thấy ảnh,
+ * Hỗ trợ load nhiều trạng thái ảnh nứt (damage states), fallback khi không tìm thấy ảnh,
  * và cho phép định nghĩa gạch không vỡ (unbreakable).
  */
 public abstract class Brick {
@@ -23,11 +23,12 @@ public abstract class Brick {
     protected boolean destroyed = false;
     protected boolean breakable = true; // Mặc định gạch có thể phá
 
-    protected Image image;
+    protected Image[] damageImages; // Mảng ảnh: [0]=nguyên, [1]=nứt1, [2]=nứt2,...
+    protected Image image; // Ảnh hiện tại (để tương thích cũ)
     protected Item powerup;
 
-    // --- Constructor ---
-    public Brick(double x, double y, double width, double height, int hitsRequired, String imageFileName) {
+    // --- Constructor mới hỗ trợ nhiều ảnh ---
+    public Brick(double x, double y, double width, double height, int hitsRequired, String... imageFileNames) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -35,7 +36,12 @@ public abstract class Brick {
         this.hitsRequired = hitsRequired;
         this.breakable = true;
 
-        this.image = loadImage("/uet/oop/arkanoidgame/entities/brick/Sprites/" + imageFileName);
+        // Load tất cả ảnh damage states
+        this.damageImages = new Image[imageFileNames.length];
+        for (int i = 0; i < imageFileNames.length; i++) {
+            this.damageImages[i] = loadImage("/uet/oop/arkanoidgame/entities/brick/Sprites/" + imageFileNames[i]);
+        }
+        this.image = damageImages[0]; // Mặc định ảnh nguyên vẹn
     }
 
     // --- Load ảnh ---
@@ -58,10 +64,16 @@ public abstract class Brick {
         }
     }
 
-    // --- Khi bị trúng bóng ---
+    // --- Khi bị trúng bóng - cập nhật ảnh nứt ---
     public boolean hit() {
         if (!breakable || destroyed) return false;
         currentHits++;
+
+        // Cập nhật ảnh theo số lần bị đánh
+        if (damageImages != null && currentHits < hitsRequired) {
+            image = damageImages[Math.min(currentHits, damageImages.length - 1)];
+        }
+
         if (currentHits >= hitsRequired) {
             destroyed = true;
             onDestroyed();
@@ -75,13 +87,14 @@ public abstract class Brick {
         // Tạo powerup hoặc hiệu ứng khi brick vỡ
     }
 
-    // --- Vẽ Brick ---
+    // --- Vẽ Brick - dùng ảnh hiện tại ---
     public void render(GraphicsContext gc) {
         if (destroyed) return;
 
         if (image != null) {
             gc.drawImage(image, x, y, width, height);
         } else {
+            // Fallback: vẽ màu nếu không có ảnh
             gc.setFill(getFallbackColor());
             gc.fillRect(x, y, width, height);
             gc.setStroke(Color.BLACK);
