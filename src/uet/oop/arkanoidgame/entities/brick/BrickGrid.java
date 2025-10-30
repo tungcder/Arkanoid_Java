@@ -9,13 +9,21 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class BrickGrid {
     private List<Brick> bricks = new ArrayList<>();
-    private static final double BRICK_WIDTH = 60;
-    private static final double BRICK_HEIGHT = 30;
+    private static final double BRICK_WIDTH = 100;
+    private static final double BRICK_HEIGHT = 50;
     private static final double GRID_OFFSET_X = 0;
     private static final double GRID_OFFSET_Y = 50;
 
     public BrickGrid(String csvPath) {
         loadFrom(csvPath);
+    }
+
+    private void updateMovingBricks() {
+        for (Brick brick : bricks) {
+            if (brick instanceof BrickMove) {
+                ((BrickMove) brick).initMovementRange(this);
+            }
+        }
     }
 
     public void loadFrom(String csvPath) {
@@ -39,11 +47,18 @@ public class BrickGrid {
         } catch (IOException | NumberFormatException e) {
             System.err.println("Error loading CSV: " + e.getMessage());
         }
+        updateMovingBricks();
     }
 
     public void render(GraphicsContext gc) {
         for (Brick brick : bricks) {
             brick.render(gc);
+        }
+    }
+
+    public void update() {
+        for (Brick brick : bricks) {
+            brick.update();
         }
     }
 

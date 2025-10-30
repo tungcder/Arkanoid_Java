@@ -92,6 +92,10 @@ public abstract class Brick {
     // --- Màu fallback ---
     protected abstract Color getFallbackColor();
 
+    public void update() {
+        // Các brick thông thường không di chuyển
+    }
+
     // --- Getter/Setter ---
     public boolean isDestroyed() { return destroyed; }
     public double getX() { return x; }

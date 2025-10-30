@@ -14,7 +14,7 @@ import uet.oop.arkanoidgame.entities.item.Buff_SlowerBall;
 
 public class BrickPowerup extends Brick {
     private static final String IMAGE_PATH = "weak.png";
-    private static final double DROP_CHANCE = 1; // 50% cơ hội drop vật phẩm
+    private static final double DROP_CHANCE = 0.7; // 100% cơ hội drop vật phẩm
 
     public BrickPowerup(double x, double y, double width, double height) {
         super(x, y, width, height, 1, IMAGE_PATH);

@@ -250,6 +250,7 @@ public class GamePanel {
     }
 
     private void updateEntities() {
+        bricks.update();
         ball.update(paddle, canvas.getWidth(), canvas.getHeight());
         paddle.update();
         ball.checkCollision(paddle);
