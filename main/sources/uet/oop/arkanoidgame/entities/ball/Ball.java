@@ -10,6 +10,7 @@ import uet.oop.arkanoidgame.entities.brick.Brick;
 import uet.oop.arkanoidgame.entities.brick.BrickGrid;
 import uet.oop.arkanoidgame.entities.item.Item;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
+import uet.oop.arkanoidgame.SoundManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +52,13 @@ public class Ball {
     private double explosionRadius = 0.0;
     private Timeline explosiveTimer;
 
-    public Ball(double x, double y, double radius) {
+    private final SoundManager soundManager;
+
+    public Ball(double x, double y, double radius, SoundManager soundManager) {
         this.x = x;
         this.y = y;
         this.radius = radius;
+        this.soundManager = soundManager;
         this.prevX = x;
         this.prevY = y;
         this.baseRadius = radius;
@@ -255,6 +259,8 @@ public class Ball {
             return;
         }
 
+        soundManager.playSfx("PaddleHit");
+
         paddle.handleHit(); //KIỂM TRA VA CHẠM GIỮA BALL VÀ PADDLE ĐỂ ĐỔI FRAME
 
         y = ry - 2 * radius;
@@ -277,6 +283,8 @@ public class Ball {
 
             double rx = b.getX(), ry = b.getY(), rw = b.getWidth(), rh = b.getHeight();
             if (!circleIntersectsAABB(cx, cy, radius, rx, ry, rw, rh)) continue;
+
+            soundManager.playSfx("BrickHit");
 
             CollisionSide side = resolveSideUsingPrevious(prevX, prevY, x, y, radius, rx, ry, rw, rh);
 

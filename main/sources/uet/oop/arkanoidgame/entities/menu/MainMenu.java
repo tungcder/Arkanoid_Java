@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import uet.oop.arkanoidgame.GamePanel;
+import uet.oop.arkanoidgame.SoundManager;
 
 public class MainMenu extends StackPane {
 
@@ -48,7 +49,17 @@ public class MainMenu extends StackPane {
     // Hiệu ứng đổ bóng mạnh hơn, mô phỏng ánh sáng neon
     DropShadow neonShadow = new DropShadow(20, Color.web("#00ffff")); // Màu neon xanh
 
-    public MainMenu(Stage stage) {
+    private final Stage stage;
+    private final SoundManager soundManager;
+
+    public MainMenu(Stage stage, SoundManager soundManager) {
+
+        this.stage = stage;
+        this.soundManager = soundManager;
+
+        // Bật nhạc Menu
+        soundManager.playMusic("Menu", true);
+
         // --- 1. Ảnh nền ---
         Image bgImage = new Image(
                 getClass().getResource("/uet/oop/arkanoidgame/entities/menu/menu_images/menu_bg1.jpg").toExternalForm()
@@ -72,13 +83,16 @@ public class MainMenu extends StackPane {
 
         // --- 3. Hành động nút ---
         startBtn.setOnAction(e -> {
-            GamePanel gamePanel = new GamePanel(stage);
+            // Dừng nhạc Menu trước khi vào game
+            this.soundManager.stopMusic();
+            // Truyền soundManager cho GamePanel
+            GamePanel gamePanel = new GamePanel(this.stage, this.soundManager);
             gamePanel.startGame();
         });
 
-        highScoreBtn.setOnAction(e -> showHighScoreScreen(stage));
+        highScoreBtn.setOnAction(e -> showHighScoreScreen()); // Bỏ 'stage'
         optionsBtn.setOnAction(e -> System.out.println("Open Options!"));
-        exitBtn.setOnAction(e -> stage.close());
+        exitBtn.setOnAction(e -> this.stage.close());
 
         // --- 4. Bố cục 2 cột (Giống code ban đầu) ---
 
@@ -112,7 +126,7 @@ public class MainMenu extends StackPane {
         return btn;
     }
 
-    private void showHighScoreScreen(Stage stage) {
+    private void showHighScoreScreen() {
         // Tạm thời điểm cao cố định
         int highScore = 12345;
 
@@ -136,8 +150,9 @@ public class MainMenu extends StackPane {
         backButton.setStyle("-fx-font-size: 24px; -fx-background-color: #ff8c00; -fx-text-fill: black; -fx-background-radius: 10; -fx-padding: 10 30;");
 
         backButton.setOnAction(e -> {
-            Scene mainMenuScene = createScene(stage);
-            stage.setScene(mainMenuScene);
+            // Truyền soundManager khi tạo lại Menu
+            Scene mainMenuScene = createScene(this.stage);
+            this.stage.setScene(mainMenuScene);
         });
 
         VBox box = new VBox(40, scoreLabel, backButton);
@@ -145,10 +160,10 @@ public class MainMenu extends StackPane {
 
         StackPane root = new StackPane(background, box);
         Scene highScoreScene = new Scene(root, 800, 600);
-        stage.setScene(highScoreScene);
+        this.stage.setScene(highScoreScene);
     }
 
     public Scene createScene(Stage stage) {
-        return new Scene(new MainMenu(stage), 800, 600);
+        return new Scene(new MainMenu(stage, this.soundManager), 800, 600);
     }
 }

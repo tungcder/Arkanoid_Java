@@ -55,7 +55,7 @@ public class GamePanel {
     // Constants - Paths
     private static final String BACKGROUND_PATH =
             "/uet/oop/arkanoidgame/entities/menu/menu_images/game_bg2.jpg";
-    private static final String INITIAL_MAP_PATH = "src/main/resources/Levels/Map1.csv";
+    private static final String INITIAL_MAP_PATH = "/Levels/Map1.csv";
 
     // Constants - Colors
     private static final String GOLD_COLOR = "#FFD700";
@@ -98,10 +98,12 @@ public class GamePanel {
 
     // Managers
     private Score scoreManager;
+    private final SoundManager soundManager;
 
-    public GamePanel(Stage stage) {
+    public GamePanel(Stage stage, SoundManager soundManager) {
         this.stage = stage;
         this.mapManager = new MapManager();
+        this.soundManager = soundManager;
 
         // Initialize Graphics
         this.canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -167,7 +169,7 @@ public class GamePanel {
     }
 
     private Ball createBall() {
-        return new Ball(BALL_X, BALL_Y, BALL_RADIUS);
+        return new Ball(BALL_X, BALL_Y, BALL_RADIUS, this.soundManager);
     }
 
     private BrickGrid loadBricks() {
@@ -210,6 +212,7 @@ public class GamePanel {
     public void startGame() {
         initializeGameTime();
         scoreManager.startNewGame();
+        soundManager.playMusic("GameRun", true);
 
         timer = new AnimationTimer() {
             @Override
@@ -329,6 +332,7 @@ public class GamePanel {
     }
 
     private void advanceToNextLevel() {
+        soundManager.playSfx("LevelClear");
         mapManager.nextLevel(bricks);
         resetForNextLevel();
     }
@@ -460,11 +464,17 @@ public class GamePanel {
     // ========== Screen Transition Methods ==========
 
     private void showGameOverScreen() {
+        soundManager.stopMusic(); // Dừng nhạc "GameRun"
+        soundManager.playSfx("GameOver");
+
         GameOverScreen gameOverScreen = new GameOverScreen(score, this::returnToMenu);
         rootPane.getChildren().add(gameOverScreen);
     }
 
     private void showGameCompleteScreen() {
+        soundManager.stopMusic(); // Dừng nhạc "GameRun"
+        soundManager.playMusic("GameClear", false);
+
         GameCompleteScreen completeScreen = new GameCompleteScreen(
                 score,
                 elapsedSeconds,
@@ -474,8 +484,9 @@ public class GamePanel {
     }
 
     private void returnToMenu() {
+        soundManager.stopMusic();
         resetGame();
-        MainMenu menu = new MainMenu(stage);
+        MainMenu menu = new MainMenu(stage, soundManager);
         stage.setScene(new Scene(menu, SCENE_WIDTH, SCENE_HEIGHT));
     }
 

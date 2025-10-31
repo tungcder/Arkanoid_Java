@@ -1,10 +1,11 @@
-// src/main/java/uet/oop/arkanoidgame/entities/brick/BrickGrid.java
 package uet.oop.arkanoidgame.entities.brick;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.BufferedReader;
-import java.io.FileReader;
+//import java.io.FileReader;
 import java.io.IOException;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -15,30 +16,47 @@ public class BrickGrid {
     private static final double GRID_OFFSET_X = 0;
     private static final double GRID_OFFSET_Y = 50;
 
-    public BrickGrid(String csvPath) {
-        loadFrom(csvPath);
+    public BrickGrid(String resourcePath) {
+        loadFrom(resourcePath);
     }
 
-    public void loadFrom(String csvPath) {
+    public void loadFrom(String resourcePath) {
         bricks.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader(csvPath))) {
-            String line;
-            int row = 0;
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(",");
-                for (int col = 0; col < values.length; col++) {
-                    int type = Integer.parseInt(values[col].trim());
-                    if (type != 0) {
-                        double x = GRID_OFFSET_X + col * BRICK_WIDTH;
-                        double y = GRID_OFFSET_Y + row * BRICK_HEIGHT;
-                        Brick brick = BrickFactory.createBrick(type, x, y, BRICK_WIDTH, BRICK_HEIGHT);
-                        bricks.add(brick);
-                    }
-                }
-                row++;
+
+        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+
+            if (is == null) {
+                System.err.println("Error loading CSV: Không tìm thấy file resource: " + resourcePath);
+                return;
             }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error loading CSV: " + e.getMessage());
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                String line;
+                int row = 0;
+                while ((line = reader.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+                    String[] values = line.split(",");
+                    for (int col = 0; col < values.length; col++) {
+                        try {
+                            int type = Integer.parseInt(values[col].trim());
+                            if (type != 0) {
+                                double x = GRID_OFFSET_X + col * BRICK_WIDTH;
+                                double y = GRID_OFFSET_Y + row * BRICK_HEIGHT;
+                                Brick brick = BrickFactory.createBrick(type, x, y, BRICK_WIDTH, BRICK_HEIGHT);
+                                bricks.add(brick);
+                            }
+                        } catch (NumberFormatException nfe) {
+                            System.err.println("Bỏ qua giá trị không hợp lệ: '" + values[col] + "' tại hàng " + row + ", cột " + col);
+                        }
+                    }
+                    row++;
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading CSV resource: " + resourcePath + " (" + e.getMessage() + ")");
+        } catch (Exception e) {
+            System.err.println("Error processing CSV data: " + resourcePath);
+            e.printStackTrace();
         }
 
         // Khởi tạo phạm vi di chuyển cho tất cả Movable bricks

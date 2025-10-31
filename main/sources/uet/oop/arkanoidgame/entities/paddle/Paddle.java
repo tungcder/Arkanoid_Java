@@ -41,10 +41,10 @@ public class Paddle {
 
         try {
             Image frame1 = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleE1.png")
+                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleA1.png")
             ));
             Image frame2 = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleE2.png")
+                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleA2.png")
             ));
             paddleFrames.add(frame1);
             paddleFrames.add(frame2);
@@ -61,11 +61,7 @@ public class Paddle {
         // Nếu paddle đang ở frame 2 (frame "hit")
         if (currentFrameIndex == 1) {
             animationCounter++;
-
-            // Thời gian hiển thị frame 2
-            int hitFrameDuration = 30;
-
-            if (animationCounter >= hitFrameDuration) {
+            if (animationCounter >= ANIMATION_DELAY) {
                 animationCounter = 0;
                 currentFrameIndex = 0; // Quay lại frame 1 (mặc định)
             }

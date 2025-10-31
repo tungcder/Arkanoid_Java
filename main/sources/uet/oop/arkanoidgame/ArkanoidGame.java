@@ -7,10 +7,12 @@ import uet.oop.arkanoidgame.entities.menu.MainMenu;
 
 public class ArkanoidGame extends Application {
 
+    public static final SoundManager soundManager = new SoundManager();
+
     @Override
     public void start(Stage stage) {
         // Tạo đối tượng menu
-        MainMenu mainMenu = new MainMenu(stage);
+        MainMenu mainMenu = new MainMenu(stage, soundManager);
 
         // Tạo scene cho menu
         Scene menuScene = new Scene(mainMenu, 800, 600);
