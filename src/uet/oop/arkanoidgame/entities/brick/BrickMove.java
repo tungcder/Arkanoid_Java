@@ -1,28 +1,30 @@
+// src/main/java/uet/oop/arkanoidgame/entities/brick/BrickMove.java
 package uet.oop.arkanoidgame.entities.brick;
 
 import javafx.scene.paint.Color;
 import java.util.List;
 
-public class BrickMove extends Brick {
+public class BrickMove extends Brick implements Movable {
     private static final String IMAGE_PATH = "weak.png";
-    private static final double SPEED = 2.0;
+    private static final double SPEED = 1.0;
     private int direction = 1;
 
     private double minX;
     private double maxX;
+    private boolean rangeInitialized = false;
 
     public BrickMove(double x, double y, double width, double height) {
         super(x, y, width, height, 1, IMAGE_PATH);
     }
 
+    @Override
     public void initMovementRange(BrickGrid brickGrid) {
-        List<Brick> allBricks = brickGrid.getBricks();
-        double tolerance = 5.0; // Chấp nhận sai số nhỏ do float
+        if (rangeInitialized) return;
 
-        // Tìm tất cả brick cùng hàng với BrickMove (dựa trên y)
+        List<Brick> allBricks = brickGrid.getBricks();
+        double tolerance = 5.0;
         double centerY = y + height / 2.0;
 
-        // Tìm biên trái: gạch gần nhất bên trái (cùng hàng)
         double leftEdge = 0;
         for (Brick b : allBricks) {
             if (!b.isDestroyed() &&
@@ -32,8 +34,7 @@ public class BrickMove extends Brick {
             }
         }
 
-        // Tìm biên phải: gạch gần nhất bên phải
-        double rightEdge = 600; // canvas width
+        double rightEdge = 600;
         for (Brick b : allBricks) {
             if (!b.isDestroyed() &&
                     Math.abs((b.getY() + b.getHeight() / 2.0) - centerY) < tolerance &&
@@ -42,21 +43,16 @@ public class BrickMove extends Brick {
             }
         }
 
-        // Khoảng trống = từ leftEdge đến rightEdge
-        minX = leftEdge;
-        maxX = rightEdge - width; // trừ width để không đè
+        minX = Math.max(0, leftEdge);
+        maxX = Math.min(600 - width, rightEdge - width);
+        rangeInitialized = true;
 
-        // Giới hạn trong màn hình
-        minX = Math.max(0, minX);
-        maxX = Math.min(600 - width, maxX);
-
-        System.out.println("BrickMove(" + x + "," + y +
-                ") di chuyển: " + minX + " → " + maxX);
+        System.out.println("BrickMove(" + x + "," + y + ") range: " + minX + " → " + maxX);
     }
 
     @Override
     public void update() {
-        if (destroyed) return;
+        if (destroyed || !rangeInitialized) return;
 
         x += SPEED * direction;
 
@@ -67,6 +63,12 @@ public class BrickMove extends Brick {
             x = maxX;
             direction = -1;
         }
+    }
+
+    @Override
+    public void reset() {
+        rangeInitialized = false;
+        direction = 1;
     }
 
     @Override

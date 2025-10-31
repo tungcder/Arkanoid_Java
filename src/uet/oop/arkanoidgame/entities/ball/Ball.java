@@ -27,7 +27,7 @@ public class Ball {
 
     private double x, y;
     private double radius;
-    private double dx = 6, dy = -6;
+    private double dx = 3, dy = -3;
     private double prevX, prevY;
 
     private final List<Image> frames = new ArrayList<>(FRAME_COUNT);

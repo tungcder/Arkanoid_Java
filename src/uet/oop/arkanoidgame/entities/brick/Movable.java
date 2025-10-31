@@ -3,5 +3,6 @@ package uet.oop.arkanoidgame.entities.brick;
 
 public interface Movable {
     void initMovementRange(BrickGrid brickGrid);
-    void update(); // Để override riêng
+    void update();
+    void reset(); // Cho phép reset trạng thái di chuyển
 }

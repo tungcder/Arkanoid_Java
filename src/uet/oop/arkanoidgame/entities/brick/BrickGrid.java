@@ -1,3 +1,4 @@
+// src/main/java/uet/oop/arkanoidgame/entities/brick/BrickGrid.java
 package uet.oop.arkanoidgame.entities.brick;
 
 import java.util.ArrayList;
@@ -16,14 +17,6 @@ public class BrickGrid {
 
     public BrickGrid(String csvPath) {
         loadFrom(csvPath);
-    }
-
-    private void updateMovingBricks() {
-        for (Brick brick : bricks) {
-            if (brick instanceof BrickMove) {
-                ((BrickMove) brick).initMovementRange(this);
-            }
-        }
     }
 
     public void loadFrom(String csvPath) {
@@ -47,7 +40,27 @@ public class BrickGrid {
         } catch (IOException | NumberFormatException e) {
             System.err.println("Error loading CSV: " + e.getMessage());
         }
-        updateMovingBricks();
+
+        // Khởi tạo phạm vi di chuyển cho tất cả Movable bricks
+        initMovableBricks();
+    }
+
+    private void initMovableBricks() {
+        for (Brick brick : bricks) {
+            if (brick instanceof Movable) {
+                ((Movable) brick).initMovementRange(this);
+            }
+        }
+    }
+
+    // Gọi khi có brick bị phá → cập nhật lại phạm vi di chuyển
+    public void updateMovableRanges() {
+        for (Brick brick : bricks) {
+            if (brick instanceof Movable && !brick.isDestroyed()) {
+                ((Movable) brick).reset();
+                ((Movable) brick).initMovementRange(this);
+            }
+        }
     }
 
     public void render(GraphicsContext gc) {
@@ -58,7 +71,7 @@ public class BrickGrid {
 
     public void update() {
         for (Brick brick : bricks) {
-            brick.update();
+            brick.update(); // Đa hình: chỉ Movable mới di chuyển
         }
     }
 
@@ -77,11 +90,8 @@ public class BrickGrid {
 
     public int getActiveBrickCount() {
         int count = 0;
-
-        for (Brick b : this.bricks) {
-            if (!b.isDestroyed()) {
-                count++;
-            }
+        for (Brick b : bricks) {
+            if (!b.isDestroyed()) count++;
         }
         return count;
     }
