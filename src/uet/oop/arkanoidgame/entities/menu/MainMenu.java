@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import uet.oop.arkanoidgame.GamePanel;
+import uet.oop.arkanoidgame.entities.data.GameSaveManager;
 
 public class MainMenu extends StackPane {
 
@@ -45,6 +46,19 @@ public class MainMenu extends StackPane {
                     + "-fx-background-radius: " + BUTTON_RADIUS + ";"
                     + "-fx-padding: " + BUTTON_PADDING + ";";
 
+    // Style cho nút bị vô hiệu hóa
+    private static final String DISABLED_STYLE =
+            "-fx-background-color: rgba(50, 50, 50, 0.5);" // Nền xám tối
+                    + "-fx-text-fill: #666666;" // Chữ xám
+                    + "-fx-font-size: " + FONT_SIZE + ";"
+                    + "-fx-font-weight: bold;"
+                    + "-fx-border-color: #666666;" // Viền xám
+                    + "-fx-border-width: 2;"
+                    + "-fx-border-radius: " + BUTTON_RADIUS + ";"
+                    + "-fx-background-radius: " + BUTTON_RADIUS + ";"
+                    + "-fx-padding: " + BUTTON_PADDING + ";"
+                    + "-fx-opacity: 0.5;";
+
     // Hiệu ứng đổ bóng mạnh hơn, mô phỏng ánh sáng neon
     DropShadow neonShadow = new DropShadow(20, Color.web("#00ffff")); // Màu neon xanh
 
@@ -58,47 +72,64 @@ public class MainMenu extends StackPane {
         background.setFitHeight(600);
 
         // --- 2. Các nút bấm ---
-        Button startBtn = createStyledButton("START GAME", neonShadow);
+        Button startBtn = createStyledButton("NEW GAME", neonShadow);
+        Button continueBtn = createStyledButton("CONTINUE", neonShadow);
         Button highScoreBtn = createStyledButton("HIGH SCORE", neonShadow);
         Button optionsBtn = createStyledButton("OPTIONS", neonShadow);
         Button exitBtn = createStyledButton("EXIT", neonShadow);
 
+        // Kiểm tra xem có save game không
+        boolean hasSave = GameSaveManager.hasSavedGame();
+        if (!hasSave) {
+            continueBtn.setDisable(true);
+            continueBtn.setStyle(DISABLED_STYLE);
+        }
+
         // Gắn sự kiện hover
-        Button[] buttons = {startBtn, highScoreBtn, optionsBtn, exitBtn};
+        Button[] buttons = {startBtn, continueBtn, highScoreBtn, optionsBtn, exitBtn};
         for (Button btn : buttons) {
-            btn.setOnMouseEntered(e -> btn.setStyle(HOVER_STYLE));
-            btn.setOnMouseExited(e -> btn.setStyle(NORMAL_STYLE));
+            if (!btn.isDisabled()) {
+                btn.setOnMouseEntered(e -> btn.setStyle(HOVER_STYLE));
+                btn.setOnMouseExited(e -> btn.setStyle(NORMAL_STYLE));
+            }
         }
 
         // --- 3. Hành động nút ---
         startBtn.setOnAction(e -> {
-            GamePanel gamePanel = new GamePanel(stage);
+            // Xóa save cũ khi bắt đầu game mới
+            GameSaveManager.deleteSave();
+            GamePanel gamePanel = new GamePanel(stage, false);
             gamePanel.startGame();
+        });
+
+        continueBtn.setOnAction(e -> {
+            if (hasSave) {
+                GamePanel gamePanel = new GamePanel(stage, true);
+                gamePanel.startGame();
+            }
         });
 
         highScoreBtn.setOnAction(e -> showHighScoreScreen(stage));
         optionsBtn.setOnAction(e -> System.out.println("Open Options!"));
         exitBtn.setOnAction(e -> stage.close());
 
-        // --- 4. Bố cục 2 cột (Giống code ban đầu) ---
+        // --- 4. Bố cục 2 cột ---
 
-        // Cột bên trái (Start + Exit)
-        VBox leftBox = new VBox(30, startBtn, exitBtn); // Tăng khoảng cách VBox lên 30
+        // Cột bên trái (New Game + Continue + Exit)
+        VBox leftBox = new VBox(30, startBtn, continueBtn, exitBtn);
         leftBox.setAlignment(Pos.CENTER);
 
         // Cột bên phải (High Score + Options)
-        VBox rightBox = new VBox(30, highScoreBtn, optionsBtn); // Tăng khoảng cách VBox lên 30
+        VBox rightBox = new VBox(30, highScoreBtn, optionsBtn);
         rightBox.setAlignment(Pos.CENTER);
 
         // Gộp hai cột lại trong HBox
-        HBox menuBox = new HBox(120, leftBox, rightBox); // Tăng khoảng cách giữa 2 cột lên 120
+        HBox menuBox = new HBox(120, leftBox, rightBox);
         menuBox.setAlignment(Pos.CENTER);
-        menuBox.setTranslateY(100); // Dịch chuyển nhóm nút xuống dưới để lấp đầy khoảng trống của Title
+        menuBox.setTranslateY(100); // Dịch chuyển nhóm nút xuống dưới
 
         // --- 5. Thêm vào StackPane ---
-        // Chỉ thêm nền và menu box (đã bỏ Title Label)
         getChildren().addAll(background, menuBox);
-
         setAlignment(Pos.CENTER);
     }
 

@@ -432,12 +432,58 @@ public class Ball {
     }
 
     // === Getter/Setter ===
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public double getRadius() { return radius; }
-    public void setRadius(double radius) { this.radius = radius; }
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
     public void setSpeedMultiplier(double multiplier) {
         this.speedMultiplier = multiplier;
         renormalizeSpeed();
+    }
+
+    // Thêm getter/setter cho speed (dx, dy) để support save/load
+    public double getSpeedX() {
+        return dx;
+    }
+
+    public double getSpeedY() {
+        return dy;
+    }
+
+    public void setSpeedX(double speedX) {
+        this.dx = speedX;
+    }
+
+    public void setSpeedY(double speedY) {
+        this.dy = speedY;
+    }
+
+    // Alias methods (backward compatibility)
+    public double getDx() {
+        return dx;
+    }
+
+    public double getDy() {
+        return dy;
+    }
+
+    public void setDx(double dx) {
+        this.dx = dx;
+    }
+
+    public void setDy(double dy) {
+        this.dy = dy;
     }
 }
