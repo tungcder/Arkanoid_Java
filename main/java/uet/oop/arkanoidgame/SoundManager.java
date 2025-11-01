@@ -28,6 +28,7 @@ public class SoundManager {
 
     // Trình phát nhạc nền hiện tại
     private MediaPlayer currentMusicPlayer;
+    private String currentMusicName = null;
 
     // --- BIẾN QUẢN LÝ ÂM LƯỢNG (MỚI) ---
     // Mặc định tất cả là 100% (1.0)
@@ -105,6 +106,13 @@ public class SoundManager {
      * CHÚ THÍCH: Đã cập nhật để `setVolume` ngay khi tạo MediaPlayer
      */
     public void playMusic(String name, boolean loop) {
+
+        // Nếu nhạc được yêu cầu đã và đang phát, không làm gì cả (để nhạc tiếp tục)
+        if (name.equals(currentMusicName) && currentMusicPlayer != null &&
+                currentMusicPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+            return; // Đã đang phát, không cần load lại
+        }
+
         // Dừng nhạc cũ trước khi phát nhạc mới
         stopMusic();
 
@@ -126,6 +134,7 @@ public class SoundManager {
             }
 
             currentMusicPlayer.play();
+            currentMusicName = name;
         } catch (Exception e) {
             System.err.println("Lỗi khi phát music: " + name + " - " + e.getMessage());
         }
@@ -139,6 +148,7 @@ public class SoundManager {
             currentMusicPlayer.stop();
             currentMusicPlayer.dispose(); // Giải phóng tài nguyên
             currentMusicPlayer = null;
+            currentMusicName = null;
         }
     }
 
