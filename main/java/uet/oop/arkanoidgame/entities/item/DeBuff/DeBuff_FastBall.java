@@ -16,4 +16,19 @@ public class DeBuff_FastBall extends Item {
     public void apply(Paddle paddle, Ball ball) {
         ball.applySpeedBuff(SPEED_INCREASE, DEBUFF_DURATION);
     }
+
+    @Override
+    public String getBuffName() {
+        return "Fast Ball";
+    }
+
+    @Override
+    public int getDurationSeconds() {
+        return (int) DEBUFF_DURATION;
+    }
+
+    @Override
+    public boolean isBuff() {
+        return false; // Đây là debuff
+    }
 }

@@ -78,12 +78,21 @@ public class BrickGrid {
     }
 
     public boolean isLevelComplete() {
+        int breakableLeft = 0;
+        int unbreakableLeft = 0;
+
         for (Brick brick : bricks) {
-            if (!brick.isDestroyed() && brick.isBreakable()) {
-                return false;
+            if (!brick.isDestroyed()) {
+                if (brick.isBreakable()) {
+                    breakableLeft++;
+                } else {
+                    unbreakableLeft++;
+                }
             }
         }
-        return true;
+
+        System.out.println("🔍 Breakable bricks: " + breakableLeft + " | Unbreakable: " + unbreakableLeft);
+        return breakableLeft == 0;
     }
 
     public List<Brick> getBricks() {
@@ -93,7 +102,7 @@ public class BrickGrid {
     public int getActiveBrickCount() {
         int count = 0;
         for (Brick b : this.bricks) {
-            if (!b.isDestroyed()) {
+            if (!b.isDestroyed() && b.isBreakable()) {  // ✅ THÊM && b.isBreakable()
                 count++;
             }
         }

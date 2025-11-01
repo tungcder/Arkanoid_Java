@@ -1,207 +1,271 @@
 package uet.oop.arkanoidgame.entities.data;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
-
 /**
- * Quản lý điểm số, thời gian chơi và danh sách High Score.
- * File high score được lưu tại "data.txt" ở thư mục gốc của dự án.
+ * Hệ thống tính điểm nâng cao cho Arkanoid Game
+ * - Điểm theo loại gạch
+ * - Hệ thống combo
+ * - Bonus theo thời gian
+ * - Điểm từ items
  */
 public class Score {
+    private int totalScore = 0;
+    private int combo = 0;
+    private int maxCombo = 0;
+    private int bricksDestroyed = 0;
 
-    // --- Các hằng số ---
-    private static final int POINTS_PER_BRICK = 10;
-    private static final int MAX_HIGH_SCORES = 10;
-    private static final String HIGH_SCORE_FILE = "data.txt";
+    // === ĐIỂM CƠ BẢN THEO LOẠI GẠCH ===
+    private static final int NORMAL_BRICK_SCORE = 10;      // Gạch thường
+    private static final int MEDIUM_BRICK_SCORE = 15;      // Gạch trung bình
+    private static final int STRONG_BRICK_SCORE = 20;      // Gạch chắc
+    private static final int MOVE_BRICK_SCORE = 30;        // Gạch di động
+    private static final int POWERUP_BRICK_SCORE = 25;     // Gạch có item
 
-    // --- Trạng thái game hiện tại ---
-    private int currentScore;
-    private long startTime; // Thời điểm bắt đầu màn chơi (tính bằng mili giây)
-    private long elapsedTime; // Tổng thời gian đã chơi của màn (tính bằng mili giây)
+    // === HỆ THỐNG COMBO ===
+    private static final int COMBO_THRESHOLD = 3;          // Bắt đầu combo từ 3 viên
+    private static final int COMBO_BONUS_PER_BRICK = 5;    // Mỗi viên combo +5 điểm
+    private static final int MAX_COMBO_MULTIPLIER = 5;     // Combo tối đa x5
 
-    // --- High Scores ---
-    private List<Integer> highScores;
+    // === ĐIỂM ITEMS ===
+    private static final int ITEM_COLLECTED_SCORE = 50;    // Điểm khi ăn item
+    private static final int GOOD_ITEM_BONUS = 100;        // Item tốt (buff)
+    private static final int BAD_ITEM_PENALTY = -20;       // Item xấu (debuff)
 
-    /**
-     * Hàm khởi tạo, tự động tải high scores từ file.
-     */
+    // === BONUS LEVEL ===
+    private static final int LEVEL_COMPLETE_BONUS = 500;   // Hoàn thành level
+    private static final int SPEED_BONUS_THRESHOLD_1 = 60; // < 60s
+    private static final int SPEED_BONUS_1 = 300;          // +300 điểm
+    private static final int SPEED_BONUS_THRESHOLD_2 = 120;// < 120s
+    private static final int SPEED_BONUS_2 = 150;          // +150 điểm
+
+    // === BONUS KHÔNG MẤT MẠNG ===
+    private static final int NO_DEATH_BONUS = 200;         // Không mất mạng trong level
+
+    private long levelStartTime = 0;
+    private boolean levelStarted = false;
+    private int livesAtStart = 0;
+
     public Score() {
-        this.highScores = new ArrayList<>();
-        loadHighScores();
-        startNewGame(); // Chuẩn bị cho game mới
+        this.totalScore = 0;
+        this.combo = 0;
+        this.maxCombo = 0;
+        this.bricksDestroyed = 0;
     }
 
-    // ==================================================================
-    // 1. QUẢN LÝ GAME HIỆN TẠI
-    // ==================================================================
-
     /**
-     * Bắt đầu một màn chơi mới: reset điểm và bắt đầu bấm giờ.
+     * Bắt đầu game mới
      */
     public void startNewGame() {
-        this.currentScore = 0;
-        this.elapsedTime = 0;
-        startTimer();
+        this.totalScore = 0;
+        this.combo = 0;
+        this.maxCombo = 0;
+        this.bricksDestroyed = 0;
+        this.levelStarted = false;
+        System.out.println("🎮 New game started!");
     }
 
     /**
-     * Được gọi khi một viên gạch bị phá vỡ.
+     * Bắt đầu level mới
+     */
+    public void startNewLevel(int currentLives) {
+        this.levelStartTime = System.currentTimeMillis();
+        this.levelStarted = true;
+        this.livesAtStart = currentLives;
+        this.combo = 0;
+        System.out.println("🎯 Level started! Lives: " + currentLives);
+    }
+
+    /**
+     * Tính điểm khi phá gạch
+     * @param brickType Loại gạch (NORMAL, MEDIUM, STRONG, MOVE, POWERUP)
+     */
+    public void brickBroken(String brickType) {
+        // Điểm cơ bản theo loại gạch
+        int baseScore = getBaseScoreForBrickType(brickType);
+
+        // Tăng combo
+        combo++;
+        if (combo > maxCombo) {
+            maxCombo = combo;
+        }
+        bricksDestroyed++;
+
+        // Tính điểm combo
+        int comboBonus = calculateComboBonus();
+
+        // Tổng điểm
+        int earnedScore = baseScore + comboBonus;
+        totalScore += earnedScore;
+
+        // Hiển thị thông báo
+        if (combo >= COMBO_THRESHOLD) {
+            System.out.println("🔥 +" + earnedScore + " điểm! (Combo x" + combo + ")");
+        } else {
+            System.out.println("✓ +" + earnedScore + " điểm");
+        }
+    }
+
+    /**
+     * Tính điểm khi phá gạch - Version đơn giản (không cần biết loại)
      */
     public void brickBroken() {
-        this.currentScore += POINTS_PER_BRICK;
+        brickBroken("NORMAL");
     }
 
     /**
-     * Bắt đầu hoặc tiếp tục bấm giờ.
+     * Lấy điểm cơ bản theo loại gạch
      */
-    public void startTimer() {
-        // Lấy thời gian hiện tại của hệ thống
-        this.startTime = System.currentTimeMillis();
+    private int getBaseScoreForBrickType(String brickType) {
+        return switch (brickType.toUpperCase()) {
+            case "MEDIUM" -> MEDIUM_BRICK_SCORE;
+            case "STRONG" -> STRONG_BRICK_SCORE;
+            case "MOVE" -> MOVE_BRICK_SCORE;
+            case "POWERUP" -> POWERUP_BRICK_SCORE;
+            default -> NORMAL_BRICK_SCORE;
+        };
     }
 
     /**
-     * Dừng bấm giờ (ví dụ: khi game over hoặc pause).
+     * Tính điểm bonus từ combo
      */
-    public void stopTimer() {
-        if (this.startTime != 0) {
-            this.elapsedTime += (System.currentTimeMillis() - this.startTime);
-            this.startTime = 0; // Đánh dấu là đã dừng
-        }
-    }
-
-    /**
-     * Lấy điểm số của màn chơi hiện tại.
-     * @return điểm số
-     */
-    public int getCurrentScore() {
-        return this.currentScore;
-    }
-
-    /**
-     * Lấy tổng thời gian đã trôi qua (tính bằng giây).
-     * Hàm này tính cả thời gian đang chạy (nếu timer chưa stop).
-     * @return tổng thời gian chơi (giây)
-     */
-    public long getCurrentGameTimeInSeconds() {
-        long currentTotalTime = this.elapsedTime;
-
-        // Nếu timer đang chạy, cộng thêm khoảng thời gian từ lúc startTimer() đến giờ
-        if (this.startTime != 0) {
-            currentTotalTime += (System.currentTimeMillis() - this.startTime);
+    private int calculateComboBonus() {
+        if (combo < COMBO_THRESHOLD) {
+            return 0;
         }
 
-        return currentTotalTime / 1000; // Chuyển đổi mili giây sang giây
+        // Công thức: (combo - threshold) * bonus * multiplier
+        int comboLevel = Math.min(combo - COMBO_THRESHOLD, MAX_COMBO_MULTIPLIER);
+        return comboLevel * COMBO_BONUS_PER_BRICK;
     }
 
     /**
-     * Lấy thời gian chơi dưới dạng chuỗi MM:SS (phút:giây).
-     * Ví dụ: "01:30"
-     * @return Chuỗi thời gian đã định dạng.
+     * Reset combo (khi bóng chạm paddle hoặc mất mạng)
      */
-    public String getFormattedCurrentTime() {
-        long totalSeconds = getCurrentGameTimeInSeconds();
-        long minutes = totalSeconds / 60;
-        long seconds = totalSeconds % 60;
-        return String.format("%02d:%02d", minutes, seconds);
+    public void resetCombo() {
+        if (combo >= COMBO_THRESHOLD) {
+            System.out.println("💔 Combo reset! (Đã đạt x" + combo + ")");
+        }
+        combo = 0;
     }
 
-    // ==================================================================
-    // 2. QUẢN LÝ HIGH SCORE (FILE)
-    // ==================================================================
+    /**
+     * Ăn item (không phân biệt loại)
+     */
+    public void itemCollected() {
+        totalScore += ITEM_COLLECTED_SCORE;
+        System.out.println("⭐ Item collected! +" + ITEM_COLLECTED_SCORE + " điểm");
+    }
 
     /**
-     * Được gọi khi màn chơi kết thúc (thắng hoặc thua).
-     * Dừng timer, kiểm tra và lưu high score.
+     * Ăn item tốt (buff)
+     */
+    public void goodItemCollected() {
+        totalScore += GOOD_ITEM_BONUS;
+        System.out.println("💎 Good item! +" + GOOD_ITEM_BONUS + " điểm");
+    }
+
+    /**
+     * Ăn item xấu (debuff) - trừ điểm
+     */
+    public void badItemCollected() {
+        totalScore += BAD_ITEM_PENALTY;
+        if (totalScore < 0) totalScore = 0; // Không cho điểm âm
+        System.out.println("⚠️ Bad item! " + BAD_ITEM_PENALTY + " điểm");
+    }
+
+    /**
+     * Tính điểm khi hoàn thành level
+     */
+    public void levelCompleted(int currentLives) {
+        if (!levelStarted) return;
+
+        // Bonus hoàn thành level
+        totalScore += LEVEL_COMPLETE_BONUS;
+        System.out.println("🎉 Level Complete! +" + LEVEL_COMPLETE_BONUS + " điểm");
+
+        // Bonus theo thời gian
+        long elapsedTime = (System.currentTimeMillis() - levelStartTime) / 1000;
+        int timeBonus = calculateTimeBonus(elapsedTime);
+        if (timeBonus > 0) {
+            totalScore += timeBonus;
+            System.out.println("⚡ Speed bonus! +" + timeBonus + " điểm (Hoàn thành trong " + elapsedTime + "s)");
+        }
+
+        // Bonus không mất mạng
+        if (currentLives >= livesAtStart) {
+            totalScore += NO_DEATH_BONUS;
+            System.out.println("❤️ No death bonus! +" + NO_DEATH_BONUS + " điểm");
+        }
+
+        // Bonus max combo
+        if (maxCombo >= 10) {
+            int comboBonus = maxCombo * 10;
+            totalScore += comboBonus;
+            System.out.println("🔥 Max combo bonus! +" + comboBonus + " điểm (x" + maxCombo + ")");
+        }
+
+        System.out.println("📊 Total Score: " + totalScore);
+
+        // Reset cho level tiếp theo
+        levelStarted = false;
+        combo = 0;
+    }
+
+    /**
+     * Tính bonus theo thời gian hoàn thành level
+     */
+    private int calculateTimeBonus(long seconds) {
+        if (seconds < SPEED_BONUS_THRESHOLD_1) {
+            return SPEED_BONUS_1;
+        } else if (seconds < SPEED_BONUS_THRESHOLD_2) {
+            return SPEED_BONUS_2;
+        }
+        return 0;
+    }
+
+    /**
+     * Ghi nhận kết thúc game
      */
     public void recordGameEnd() {
-        stopTimer();
-        // Gửi điểm số cuối cùng để kiểm tra high score
-        boolean newHighScore = addHighScore(this.currentScore);
-        if (newHighScore) {
-            saveHighScores(); // Chỉ lưu file nếu có sự thay đổi
-        }
+        System.out.println("=================================");
+        System.out.println("🏆 GAME STATISTICS");
+        System.out.println("=================================");
+        System.out.println("Final Score: " + totalScore);
+        System.out.println("Bricks Destroyed: " + bricksDestroyed);
+        System.out.println("Max Combo: x" + maxCombo);
+        System.out.println("=================================");
     }
 
-    /**
-     * Lấy danh sách 10 high scores cao nhất.
-     * @return List<Integer> chứa các điểm số.
-     */
-    public List<Integer> getHighScores() {
-        return Collections.unmodifiableList(this.highScores);
+    // === GETTERS ===
+    public int getScore() {
+        return totalScore;
     }
 
-    /**
-     * Thêm một điểm số mới vào danh sách, sắp xếp, và cắt bớt nếu vượt quá 10.
-     * @param newScore Điểm số mới
-     * @return true nếu điểm số này được vào top 10, false nếu không.
-     */
-    private boolean addHighScore(int newScore) {
-        if (newScore <= 0) {
-            return false;
-        }
-
-        // Kiểm tra xem có đủ điều kiện vào top 10 không
-        if (highScores.size() < MAX_HIGH_SCORES || newScore > highScores.get(highScores.size() - 1)) {
-            highScores.add(newScore);
-            // Sắp xếp danh sách giảm dần (điểm cao nhất lên đầu)
-            Collections.sort(highScores, Collections.reverseOrder());
-
-            // Giữ lại đúng MAX_HIGH_SCORES (10)
-            while (highScores.size() > MAX_HIGH_SCORES) {
-                highScores.remove(highScores.size() - 1); // Xóa phần tử cuối (điểm thấp nhất)
-            }
-            return true;
-        }
-        return false;
+    public int getCombo() {
+        return combo;
     }
 
-    /**
-     * Tải danh sách high scores từ file "data.txt".
-     */
-    private void loadHighScores() {
-        File file = new File(HIGH_SCORE_FILE);
-        this.highScores.clear();
-
-        // Kiểm tra file tồn tại, nếu không thì tạo file mới
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-                System.out.println("Đã tạo file data.txt mới.");
-                return; // Không có gì để đọc
-            } catch (IOException e) {
-                System.err.println("LỖI: Không thể tạo file data.txt: " + e.getMessage());
-                return;
-            }
-        }
-
-        // Sử dụng try-with-resources để tự động đóng Scanner
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextInt() && highScores.size() < MAX_HIGH_SCORES) {
-                highScores.add(scanner.nextInt());
-            }
-        } catch (FileNotFoundException e) {
-            System.err.println("LỖI: Không tìm thấy file data.txt: " + e.getMessage());
-        }
+    public int getMaxCombo() {
+        return maxCombo;
     }
 
-    /**
-     * Lưu danh sách high scores hiện tại (đã được sắp xếp) vào file "data.txt".
-     */
-    private void saveHighScores() {
-        // Sử dụng try-with-resources để tự động đóng PrintWriter
-        try (PrintWriter writer = new PrintWriter(new FileWriter(HIGH_SCORE_FILE))) {
-            for (int score : highScores) {
-                writer.println(score);
-            }
-        } catch (IOException e) {
-            System.err.println("LỖI: Không thể lưu high scores vào data.txt: " + e.getMessage());
-        }
+    public int getBricksDestroyed() {
+        return bricksDestroyed;
+    }
+
+    // === SETTERS (cho save/load) ===
+    public void setScore(int score) {
+        this.totalScore = score;
+    }
+
+    public void setCombo(int combo) {
+        this.combo = combo;
+    }
+
+    public void setMaxCombo(int maxCombo) {
+        this.maxCombo = maxCombo;
+    }
+
+    public void setBricksDestroyed(int bricksDestroyed) {
+        this.bricksDestroyed = bricksDestroyed;
     }
 }

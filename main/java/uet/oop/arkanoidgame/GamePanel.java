@@ -25,6 +25,8 @@ import uet.oop.arkanoidgame.entities.paddle.Paddle;
 import uet.oop.arkanoidgame.entities.menu.MainMenu;
 import uet.oop.arkanoidgame.entities.item.Item;
 import uet.oop.arkanoidgame.ThemeManager;
+import uet.oop.arkanoidgame.entities.data.HighScoreManager;
+
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -57,6 +59,7 @@ public class GamePanel {
 
     private final Stage stage;
     private final MapManager mapManager;
+    private final BuffManager buffManager;
     private AnimationTimer timer;
     private boolean gameRunning = true;
     private boolean gamePaused = false;
@@ -110,12 +113,23 @@ public class GamePanel {
         this.gc = canvas.getGraphicsContext2D();
         this.gameBackground = loadBackgroundImage();
         this.titleGlow = createTitleGlow();
+        this.buffManager = new BuffManager();
 
         this.statusPanel = new GameStatusPanel();
         this.statusPanel.setOnPauseToggle(this::togglePause);
         this.statusPanel.setOnExitGame(this::exitToMenu);
 
         this.rootPane = createMainLayout();
+        this.buffManager.setOnUpdate(() -> {
+            statusPanel.updateBuff(
+                    buffManager.getCurrentBuffName(),
+                    buffManager.getBuffTimeLeft()
+            );
+            statusPanel.updateDebuff(
+                    buffManager.getCurrentDebuffName(),
+                    buffManager.getDebuffTimeLeft()
+            );
+        });
         Scene gameScene = new Scene(rootPane, SCENE_WIDTH, SCENE_HEIGHT);
         stage.setScene(gameScene);
 
@@ -261,6 +275,10 @@ public class GamePanel {
             scoreManager = new Score();
         }
         scoreManager.startNewGame();
+
+        // ✅ Bắt đầu level với số mạng hiện tại
+        scoreManager.startNewLevel(playerLives);
+
         soundManager.playMusic("GameRun", true);
 
         timer = new AnimationTimer() {
@@ -283,6 +301,7 @@ public class GamePanel {
 
         timer.start();
     }
+
 
     private void initializeGameTime() {
         // Nếu load game, startTime được điều chỉnh để elapsedSeconds khớp với totalPlayedSeconds
@@ -331,7 +350,12 @@ public class GamePanel {
 
         if (bricksBefore > bricksAfter) {
             int bricksBroken = bricksBefore - bricksAfter;
-            scoreBrokenBricks(bricksBroken);
+            // ✅ Gọi scoreManager để tính điểm với combo
+            for (int i = 0; i < bricksBroken; i++) {
+                scoreManager.brickBroken(); // Tăng combo mỗi viên
+            }
+            // ✅ Cập nhật score từ scoreManager
+            score = scoreManager.getScore();
         }
 
         if (spawned != null) {
@@ -366,9 +390,35 @@ public class GamePanel {
 
     private void applyItem(Item item) {
         item.apply(paddle, ball);
-        score += ITEM_SCORE_BONUS;
+
+        // ✅ CẬP NHẬT BUFF/DEBUFF LÊN UI
+        if (item.isBuff()) {
+            if (item.getDurationSeconds() > 0) {
+                buffManager.activateBuff(item.getBuffName(), item.getDurationSeconds());
+            }
+            scoreManager.goodItemCollected();
+        } else {
+            if (item.getDurationSeconds() > 0) {
+                buffManager.activateDebuff(item.getBuffName(), item.getDurationSeconds());
+            }
+            scoreManager.badItemCollected();
+        }
+
+        score = scoreManager.getScore();
     }
 
+    private boolean isGoodItem(String itemType) {
+        return itemType.contains("Life") ||
+                itemType.contains("Expand") ||
+                itemType.contains("Slow") ||
+                itemType.contains("Bigger");
+    }
+
+    private boolean isBadItem(String itemType) {
+        return itemType.contains("Shrink") ||
+                itemType.contains("Fast") ||
+                itemType.contains("Reverse");
+    }
     private void checkBallStatus() {
         if (ball.isOutOfScreen(canvas.getHeight())) {
             handleBallLost();
@@ -377,6 +427,10 @@ public class GamePanel {
 
     private void handleBallLost() {
         playerLives--;
+
+        // ✅ Reset combo khi mất bóng
+        scoreManager.resetCombo();
+
         if (playerLives > 0) {
             ball.attachToPaddle(paddle);
         } else {
@@ -385,27 +439,79 @@ public class GamePanel {
     }
 
     private void checkLevelProgression() {
-        if (bricks.isLevelComplete()) {
-            if (mapManager.hasNextLevel()) {
+        boolean levelComplete = bricks.isLevelComplete();
+        int activeBricks = bricks.getActiveBrickCount();
+
+        // ✅ LOG CHI TIẾT
+        System.out.println("==================================");
+        System.out.println("🔍 CHECK LEVEL PROGRESSION:");
+        System.out.println("   - isLevelComplete(): " + levelComplete);
+        System.out.println("   - getActiveBrickCount(): " + activeBricks);
+        System.out.println("   - gameRunning: " + gameRunning);
+        System.out.println("   - gameEnded: " + gameEnded);
+        System.out.println("   - gamePaused: " + gamePaused);
+
+        if (levelComplete) {
+            System.out.println("✅ LEVEL COMPLETE DETECTED!");
+
+            boolean hasNext = mapManager.hasNextLevel();
+            System.out.println("   - hasNextLevel(): " + hasNext);
+
+            if (hasNext) {
+                System.out.println("➡️ CALLING advanceToNextLevel()");
                 advanceToNextLevel();
             } else {
+                System.out.println("🎉 CALLING completeGame()");
                 completeGame();
             }
+        } else {
+            System.out.println("❌ Level NOT complete yet");
         }
+        System.out.println("==================================");
     }
 
     private void advanceToNextLevel() {
         soundManager.playSfx("LevelClear");
+
+        // ✅ Tính điểm hoàn thành level
+        scoreManager.levelCompleted(playerLives);
+        score = scoreManager.getScore();
+
         mapManager.nextLevel(bricks);
         resetForNextLevel();
+
+        // ✅ Bắt đầu level mới
+        scoreManager.startNewLevel(playerLives);
     }
 
     private void completeGame() {
+        System.out.println("🎉🎉🎉 COMPLETE GAME CALLED 🎉🎉🎉");
+        System.out.println("   - Setting gameRunning = false");
         gameRunning = false;
+
+        System.out.println("   - Setting gameEnded = true");
         gameEnded = true;
-        timer.stop();
-        scoreManager.recordGameEnd();
+
+        if (timer != null) {
+            System.out.println("   - Stopping timer");
+            timer.stop();
+        }
+
+        System.out.println("   - Calculating total played time");
+        calculateTotalPlayedTime();
+
+        if (scoreManager != null) {
+            System.out.println("   - Recording game end");
+            scoreManager.recordGameEnd();
+        }
+
+        System.out.println("   - Deleting save file");
+        GameSaveManager.deleteSave();
+
+        System.out.println("   - Showing GameCompleteScreen");
         showGameCompleteScreen();
+
+        System.out.println("🎉 COMPLETE GAME FINISHED 🎉");
     }
 
     private void render() {
@@ -433,10 +539,16 @@ public class GamePanel {
     }
 
     private void updateHUD() {
+        int currentCombo = scoreManager.getCombo();
+
         statusPanel.updateAll(
-                playerLives, score, elapsedSeconds,
-                buffText, buffTime,
-                debuffText, debuffTime
+                playerLives,
+                score,
+                elapsedSeconds,
+                buffManager.getCurrentBuffName(),
+                buffManager.getBuffTimeLeft(),
+                buffManager.getCurrentDebuffName(),
+                buffManager.getDebuffTimeLeft()
         );
     }
 
@@ -453,12 +565,14 @@ public class GamePanel {
     private void pauseGame() {
         lastPauseTime = System.nanoTime();
         statusPanel.setPauseButtonState(true);
+        buffManager.pauseTimers(); // ✅ PAUSE BUFF TIMERS
         showPauseOverlay();
     }
 
     private void resumeGame() {
         pausedTime += (System.nanoTime() - lastPauseTime);
         statusPanel.setPauseButtonState(false);
+        buffManager.resumeTimers(); // ✅ RESUME BUFF TIMERS
         hidePauseOverlay();
     }
 
@@ -673,10 +787,17 @@ public class GamePanel {
 
     private void showGameOverScreen() {
         gameEnded = true;
-        // Xóa save khi game over
         GameSaveManager.deleteSave();
 
-        soundManager.stopMusic(); // Dừng nhạc "GameRun"
+        // ✅ Lưu high score khi game over
+        HighScoreManager.saveHighScore(
+                score,
+                elapsedSeconds,
+                mapManager.getCurrentLevelIndex(),
+                false // game chưa hoàn thành
+        );
+
+        soundManager.stopMusic();
         soundManager.playSfx("GameOver");
 
         GameOverScreen gameOverScreen = new GameOverScreen(score, this::returnToMenu);
@@ -684,19 +805,27 @@ public class GamePanel {
     }
 
     private void showGameCompleteScreen() {
-        gameEnded = true;
-        // Xóa save khi hoàn thành game
-        GameSaveManager.deleteSave();
+        System.out.println("📺 SHOW GAME COMPLETE SCREEN CALLED");
 
-        soundManager.stopMusic(); // Dừng nhạc "GameRun"
+        gameEnded = true;
+
+        soundManager.stopMusic();
         soundManager.playMusic("GameClear", false);
 
+        System.out.println("   - Creating GameCompleteScreen with score: " + score + ", time: " + elapsedSeconds);
         GameCompleteScreen completeScreen = new GameCompleteScreen(
                 score,
                 elapsedSeconds,
                 this::returnToMenu
         );
+
+        System.out.println("   - Clearing rootPane children");
+        rootPane.getChildren().clear();
+
+        System.out.println("   - Adding completeScreen to rootPane");
         rootPane.getChildren().add(completeScreen);
+
+        System.out.println("📺 SHOW GAME COMPLETE SCREEN FINISHED");
     }
 
     private void returnToMenu() {

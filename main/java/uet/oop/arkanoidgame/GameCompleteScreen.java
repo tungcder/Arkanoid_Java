@@ -221,6 +221,7 @@ public class GameCompleteScreen extends StackPane {
         titleScale.play();
         scoreFade.play();
         timeFade.play();
+        imageFade.play();  // ✅ THÊM DÒNG NÀY - nó đã bị thiếu!
         buttonFade.play();
     }
 }

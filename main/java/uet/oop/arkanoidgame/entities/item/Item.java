@@ -21,7 +21,7 @@ public abstract class Item {
             ));
             if (image.isError()) {
                 System.err.println("Lỗi load ảnh item: " + imagePath + " (isError=true)");
-                this.image = null; // Fallback
+                this.image = null;
             }
         } catch (NullPointerException e) {
             System.err.println("Không tìm thấy file item: " + imagePath);
@@ -37,7 +37,6 @@ public abstract class Item {
         if (image != null) {
             gc.drawImage(image, x, y, width, height);
         } else {
-            // Fallback: Vẽ hình vuông màu xanh lá với viền đen
             gc.setFill(Color.LIME);
             gc.fillRect(x, y, width, height);
             gc.setStroke(Color.BLACK);
@@ -53,6 +52,11 @@ public abstract class Item {
     }
 
     public abstract void apply(Paddle paddle, Ball ball);
+
+    // ✅ THÊM CÁC METHOD MỚI
+    public abstract String getBuffName();
+    public abstract int getDurationSeconds();
+    public abstract boolean isBuff(); // true = buff, false = debuff
 
     public double getY() { return y; }
 }

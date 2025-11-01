@@ -247,7 +247,7 @@ public class Ball {
     }
 
     public void checkCollision(Paddle paddle) {
-        if (attachedToPaddle) return; // đang dính thì không cần check va chạm
+        if (attachedToPaddle) return;
 
         double rx = paddle.getX();
         double ry = paddle.getY();
@@ -262,8 +262,7 @@ public class Ball {
         }
 
         soundManager.playSfx("PaddleHit");
-
-        paddle.handleHit(); //KIỂM TRA VA CHẠM GIỮA BALL VÀ PADDLE ĐỂ ĐỔI FRAME
+        paddle.handleHit();
 
         y = ry - 2 * radius;
         dy = -Math.abs(dy) * RESTITUTION;
@@ -274,6 +273,7 @@ public class Ball {
         dx = hitOffset * MAX_SPEED;
         clampSpeed();
     }
+
 
     public Item checkCollision(BrickGrid grid) {
         if (attachedToPaddle) return null; // đang dính thì chưa va gạch
