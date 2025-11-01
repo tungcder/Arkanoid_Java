@@ -23,13 +23,13 @@ public class Ball {
     private static final int FRAME_COUNT = 8;
     private static final double FRAME_STEP = 10;
     private static final double RESTITUTION = 1.0;
-    private static final double MAX_SPEED = 5.0;
+    private static final double MAX_SPEED = 8.0;
     private static final double MIN_ABS_DY = 2.0;
     private static final double EPS = 1e-6;
 
     private double x, y;
     private double radius;
-    private double dx = 1.5, dy = -1.5;
+    private double dx = 6, dy = -6;
     private double prevX, prevY;
 
     private final List<Image> frames = new ArrayList<>(FRAME_COUNT);
@@ -442,12 +442,69 @@ public class Ball {
     }
 
     // === Getter/Setter ===
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public double getRadius() { return radius; }
-    public void setRadius(double radius) { this.radius = radius; }
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    // ✅ NEW: Setter cho vị trí (để support save/load)
+    public void setX(double x) {
+        this.x = x;
+        this.prevX = x; // Cập nhật cả prevX để tránh lỗi collision
+    }
+
+    public void setY(double y) {
+        this.y = y;
+        this.prevY = y; // Cập nhật cả prevY để tránh lỗi collision
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
     public void setSpeedMultiplier(double multiplier) {
         this.speedMultiplier = multiplier;
         renormalizeSpeed();
+    }
+
+    // Thêm getter/setter cho speed (dx, dy) để support save/load
+    public double getSpeedX() {
+        return dx;
+    }
+
+    public double getSpeedY() {
+        return dy;
+    }
+
+    public void setSpeedX(double speedX) {
+        this.dx = speedX;
+    }
+
+    public void setSpeedY(double speedY) {
+        this.dy = speedY;
+    }
+
+    // Alias methods (backward compatibility)
+    public double getDx() {
+        return dx;
+    }
+
+    public double getDy() {
+        return dy;
+    }
+
+    public void setDx(double dx) {
+        this.dx = dx;
+    }
+
+    public void setDy(double dy) {
+        this.dy = dy;
     }
 }

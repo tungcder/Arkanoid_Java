@@ -14,16 +14,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-/**
- * Class quản lý khung STATUS hiển thị thông tin game
- */
 public class GameStatusPanel {
-    // Constants - Dimensions
     private static final int PANEL_WIDTH = 250;
     private static final int PANEL_HEIGHT = 600;
     private static final int BUTTON_WIDTH = 150;
 
-    // Constants - Colors
     private static final String GOLD_COLOR = "#FFD700";
     private static final String CYAN_COLOR = "#00FFEA";
     private static final String ORANGE_COLOR = "#FFA500";
@@ -31,44 +26,42 @@ public class GameStatusPanel {
     private static final String RED_COLOR = "#FF6B6B";
     private static final String WHITE_COLOR = "#FFFFFF";
 
-    // Constants - Button Colors
     private static final String PAUSE_GRADIENT = "#5CDB5C, #4CAF50";
     private static final String PAUSE_HOVER_GRADIENT = "#6FEE6F, #5CDB5C";
     private static final String RESUME_GRADIENT = "#FFB84D, #FF9800";
+    private static final String EXIT_GRADIENT = "#FF4757, #E84118";
+    private static final String EXIT_HOVER_GRADIENT = "#FF6B7A, #FF4757";
     private static final String PAUSE_BORDER = "#45a049";
     private static final String RESUME_BORDER = "#F57C00";
+    private static final String EXIT_BORDER = "#C23616";
 
-    // Constants - Paths & Icons
-    private static final String FONT_BOLD_PATH = "/fonts/Orbitron-Bold.ttf";
-    private static final String FONT_REGULAR_PATH = "/fonts/Orbitron-Regular.ttf";
     private static final String ICON_LIVES = "❤";
     private static final String ICON_SCORE = "★";
     private static final String ICON_TIME = "⏱";
     private static final String ICON_BUFF = "↑";
     private static final String ICON_DEBUFF = "↓";
 
-    // UI Components
     private final VBox hudBox;
     private final Button pauseButton;
+    private final Button exitButton;
 
-    // Status Labels
     private final Label livesValue = new Label();
     private final Label scoreValue = new Label();
     private final Label timeValue = new Label();
     private final Label buffValue = new Label();
     private final Label debuffValue = new Label();
 
-    // Effects
     private final DropShadow titleGlow;
     private final DropShadow buttonGlow;
 
-    // Callback
     private Runnable onPauseToggle;
+    private Runnable onExitGame;
 
     public GameStatusPanel() {
         this.titleGlow = createTitleGlow();
         this.buttonGlow = createButtonGlow();
         this.pauseButton = createPauseButton();
+        this.exitButton = createExitButton();
         this.hudBox = createHUD();
     }
 
@@ -98,11 +91,35 @@ public class GameStatusPanel {
         return btn;
     }
 
+    private Button createExitButton() {
+        Button btn = new Button("✕  EXIT GAME");
+        btn.setFont(Font.font("System", FontWeight.BOLD, 13));
+        btn.setPrefWidth(BUTTON_WIDTH);
+
+        DropShadow exitGlow = new DropShadow();
+        exitGlow.setRadius(12);
+        exitGlow.setColor(Color.web("#E84118", 0.6));
+        btn.setEffect(exitGlow);
+
+        applyExitButtonStyle(btn, false);
+        setupExitButtonInteractions(btn);
+
+        return btn;
+    }
+
     private void setupButtonInteractions(Button btn) {
         btn.setOnMouseEntered(e -> handleButtonHover(btn, true));
         btn.setOnMouseExited(e -> handleButtonHover(btn, false));
         btn.setOnAction(e -> {
             if (onPauseToggle != null) onPauseToggle.run();
+        });
+    }
+
+    private void setupExitButtonInteractions(Button btn) {
+        btn.setOnMouseEntered(e -> applyExitButtonStyle(btn, true));
+        btn.setOnMouseExited(e -> applyExitButtonStyle(btn, false));
+        btn.setOnAction(e -> {
+            if (onExitGame != null) onExitGame.run();
         });
     }
 
@@ -137,8 +154,25 @@ public class GameStatusPanel {
         ));
     }
 
+    private void applyExitButtonStyle(Button btn, boolean isHovered) {
+        String gradient = isHovered ? EXIT_HOVER_GRADIENT : EXIT_GRADIENT;
+        String scale = isHovered ? "-fx-scale-x: 1.05; -fx-scale-y: 1.05;" : "";
+
+        btn.setStyle(String.format(
+                "-fx-background-color: linear-gradient(to bottom, %s); " +
+                        "-fx-text-fill: white; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-padding: 10 20; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-border-color: %s; " +
+                        "-fx-border-width: 2; " +
+                        "-fx-border-radius: 10; %s",
+                gradient, EXIT_BORDER, scale
+        ));
+    }
+
     private VBox createHUD() {
-        VBox box = new VBox(12);
+        VBox box = new VBox(10);
         box.setPrefWidth(PANEL_WIDTH);
         box.setPrefHeight(PANEL_HEIGHT);
         box.setMaxHeight(PANEL_HEIGHT);
@@ -160,9 +194,13 @@ public class GameStatusPanel {
         VBox debuffBox = createEffectBox("DEBUFF", debuffValue, RED_COLOR, ICON_DEBUFF);
 
         box.getChildren().addAll(
-                title, topLine, spacer, pauseButton,
-                createSpacer(8), livesBox, scoreBox, timeBox,
-                separator, buffBox, debuffBox
+                title, topLine, spacer,
+                pauseButton,
+                exitButton,
+                createSpacer(8),
+                livesBox, scoreBox, timeBox,
+                separator,
+                buffBox, debuffBox
         );
 
         return box;
@@ -293,8 +331,6 @@ public class GameStatusPanel {
         return spacer;
     }
 
-    // Public Update Methods
-
     public void updateLives(int lives) {
         livesValue.setText(String.valueOf(lives));
     }
@@ -361,6 +397,10 @@ public class GameStatusPanel {
 
     public void setOnPauseToggle(Runnable callback) {
         this.onPauseToggle = callback;
+    }
+
+    public void setOnExitGame(Runnable callback) {
+        this.onExitGame = callback;
     }
 
     public VBox getHudBox() {

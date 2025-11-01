@@ -124,4 +124,78 @@ public abstract class Brick {
 
     public Item getPowerup() { return powerup; }
     public void setPowerup(Item powerup) { this.powerup = powerup; }
+
+    // ============================================
+    // METHODS ĐỂ HỖ TRỢ LƯU/TẢI TRẠNG THÁI
+    // ============================================
+
+    /**
+     * Lấy "health" hiện tại của brick (số lần đập còn lại trước khi vỡ)
+     * @return Số lần đập còn lại = hitsRequired - currentHits
+     */
+    public int getHealth() {
+        if (destroyed) {
+            return 0;
+        }
+        return hitsRequired - currentHits;
+    }
+
+    /**
+     * Set "health" của brick (số lần đập còn lại)
+     * Dùng để khôi phục trạng thái khi load save
+     * @param health Số lần đập còn lại
+     */
+    public void setHealth(int health) {
+        if (health <= 0) {
+            this.currentHits = this.hitsRequired;
+            this.destroyed = true;
+        } else {
+            this.currentHits = this.hitsRequired - health;
+            this.destroyed = false;
+
+            // Cập nhật ảnh theo số lần đã bị đánh
+            if (damageImages != null && currentHits > 0) {
+                image = damageImages[Math.min(currentHits, damageImages.length - 1)];
+            } else if (damageImages != null) {
+                image = damageImages[0]; // Ảnh nguyên vẹn
+            }
+        }
+    }
+
+    /**
+     * Phá hủy brick ngay lập tức (không rơi item)
+     * Dùng khi load save và brick này đã bị phá trước đó
+     */
+    public void destroy() {
+        this.destroyed = true;
+        this.currentHits = this.hitsRequired;
+    }
+
+    /**
+     * Lấy số lần đã bị đập
+     * @return currentHits
+     */
+    public int getCurrentHits() {
+        return currentHits;
+    }
+
+    /**
+     * Set số lần đã bị đập (dùng cho load save nếu cần)
+     * @param hits Số lần đã bị đập
+     */
+    public void setCurrentHits(int hits) {
+        this.currentHits = Math.max(0, Math.min(hits, hitsRequired));
+
+        // Cập nhật ảnh
+        if (damageImages != null && currentHits > 0 && currentHits < hitsRequired) {
+            image = damageImages[Math.min(currentHits, damageImages.length - 1)];
+        } else if (damageImages != null && currentHits == 0) {
+            image = damageImages[0];
+        }
+
+        // Cập nhật trạng thái destroyed
+        if (currentHits >= hitsRequired) {
+            destroyed = true;
+        }
+    }
 }
