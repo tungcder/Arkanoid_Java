@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import uet.oop.arkanoidgame.GamePanel;
 import uet.oop.arkanoidgame.SoundManager;
-import uet.oop.arkanoidgame.SettingScreen;
+import uet.oop.arkanoidgame.Setting.SettingScreen;
 
 public class MainMenu extends StackPane {
 

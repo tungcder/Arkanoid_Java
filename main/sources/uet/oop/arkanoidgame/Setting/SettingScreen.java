@@ -1,4 +1,4 @@
-package uet.oop.arkanoidgame;
+package uet.oop.arkanoidgame.Setting;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,6 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import uet.oop.arkanoidgame.SoundManager;
+import uet.oop.arkanoidgame.ThemeManager;
 import uet.oop.arkanoidgame.entities.menu.MainMenu;
 
 import java.util.function.Consumer;
@@ -273,6 +275,7 @@ public class SettingScreen extends StackPane {
         slider.valueProperty().addListener((observable, oldValue, newValue) -> {
             onVolumeChange.accept(newValue.doubleValue());
             percentageLabel.setText(String.format("%.0f%%", newValue.doubleValue() * 100));
+            SettingManager.saveSettings(soundManager);
         });
 
         // Hộp chứa thanh trượt và %
@@ -361,6 +364,8 @@ public class SettingScreen extends StackPane {
 
         // 2. Cập nhật ThemeManager để toàn bộ game sử dụng
         ThemeManager.setCurrentTheme(themeName);
+
+        SettingManager.saveSettings(soundManager);
     }
 
     // CHÚ THÍCH: XÓA PHƯƠNG THỨC createThemeButton()
