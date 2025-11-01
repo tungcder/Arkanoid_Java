@@ -7,7 +7,7 @@ import uet.oop.arkanoidgame.entities.ball.Ball;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 public class DeBuff_ReversePaddle extends Item {
-    private static final String IMAGE_PATH = "/uet/oop/arkanoidgame/entities/item/DeBuff/DeBuff_Image/ReversePaddle.png";
+    private static final String IMAGE_PATH = "/Images/Items/DeBuff/ReversePaddle.png";
     private static final double DEBUFF_DURATION = 5.0; // Thời gian hiệu ứng (giây)
 
     public DeBuff_ReversePaddle(double x, double y) {

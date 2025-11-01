@@ -114,7 +114,7 @@ public class SettingScreen extends StackPane {
     private final SoundManager soundManager;
 
     private final java.util.List<String> themeNames = java.util.List.of("Theme1", "Theme2", "Theme3");
-    private final java.util.List<String> themeDisplayNames = java.util.List.of("SPACE", "GÌ ĐÓ", "GÌ ĐÓ KHÁC");
+    private final java.util.List<String> themeDisplayNames = java.util.List.of("SPACE", "EGYPT", "OCEAN");
     private int currentThemeIndex;
     private Label currentThemeLabel;
 

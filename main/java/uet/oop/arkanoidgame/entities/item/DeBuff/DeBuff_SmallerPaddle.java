@@ -4,7 +4,7 @@ import uet.oop.arkanoidgame.entities.ball.Ball;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 public class DeBuff_SmallerPaddle extends Item {
-    private static final String IMAGE_PATH = "/uet/oop/arkanoidgame/entities/item/DeBuff/DeBuff_Image/SmallerPaddle.png";
+    private static final String IMAGE_PATH = "/Images/Items/DeBuff/SmallerPaddle.png";
     private static final double SIZE_DECREASE = 0.7;  // Giảm còn 70%
     private static final double BUFF_DURATION = 7.0;  // Giây
 

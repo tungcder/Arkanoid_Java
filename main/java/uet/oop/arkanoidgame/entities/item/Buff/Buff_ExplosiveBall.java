@@ -4,7 +4,7 @@ import uet.oop.arkanoidgame.entities.ball.Ball;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 public class Buff_ExplosiveBall extends Item {
-    private static final String IMAGE_PATH = "/uet/oop/arkanoidgame/entities/item/Buff/Buff_Image/ExplosiveBall.png";
+    private static final String IMAGE_PATH = "/Images/Items/Buff/ExplosiveBall.png";
     private static final double EXPLOSION_RADIUS = 80.0; // px quanh điểm va chạm
     private static final double DURATION_SECONDS = 7.0;  // giây
 
