@@ -10,6 +10,10 @@ import java.util.HashMap;
  * Quản lý tất cả âm thanh trong game.
  * - Sử dụng MediaPlayer cho Music (dài, lặp lại).
  * - Sử dụng AudioClip cho SFX (ngắn, độ trễ thấp).
+ * * ĐÃ NÂNG CẤP:
+ * - Thêm biến cho Master, Music, và SFX volume.
+ * - Thêm các phương thức set/get để điều chỉnh âm lượng.
+ * - Cập nhật các phương thức play() để tuân theo mức âm lượng đã đặt.
  */
 public class SoundManager {
 
@@ -25,6 +29,12 @@ public class SoundManager {
     // Trình phát nhạc nền hiện tại
     private MediaPlayer currentMusicPlayer;
 
+    // --- BIẾN QUẢN LÝ ÂM LƯỢNG (MỚI) ---
+    // Mặc định tất cả là 100% (1.0)
+    private double masterVolume = 1.0;
+    private double musicVolume = 1.0;
+    private double sfxVolume = 1.0;
+
     public SoundManager() {
         // Tải tất cả âm thanh khi khởi tạo
         loadAllSounds();
@@ -37,7 +47,7 @@ public class SoundManager {
         loadMusic("GameClear", SOUND_DIR + "GameClear.mp3");
 
         // 2. Tải SFX (AudioClip)
-        loadSfx("BrickHit", SOUND_DIR + "BrickHit.mp3"); // .mp3 vẫn chạy được với AudioClip
+        loadSfx("BrickHit", SOUND_DIR + "BrickHit.mp3");
         loadSfx("PaddleHit", SOUND_DIR + "PaddleHit.wav");
         loadSfx("LevelClear", SOUND_DIR + "LevelClear.wav");
         loadSfx("GameOver", SOUND_DIR + "GameOver.wav");
@@ -61,11 +71,13 @@ public class SoundManager {
 
     /**
      * Phát một hiệu ứng âm thanh (SFX) ngắn.
+     * CHÚ THÍCH: Đã cập nhật để sử dụng `clip.play(volume)`
      */
     public void playSfx(String name) {
         AudioClip clip = sfxCache.get(name);
         if (clip != null) {
-            clip.play();
+            // Tính toán âm lượng cuối cùng và phát
+            clip.play(masterVolume * sfxVolume);
         } else {
             System.err.println("SFX '" + name + "' chưa được tải!");
         }
@@ -90,6 +102,7 @@ public class SoundManager {
      * Phát một file nhạc nền.
      * @param name Tên nhạc đã tải (ví dụ: "Menu")
      * @param loop Lặp lại (true) hay phát 1 lần (false)
+     * CHÚ THÍCH: Đã cập nhật để `setVolume` ngay khi tạo MediaPlayer
      */
     public void playMusic(String name, boolean loop) {
         // Dừng nhạc cũ trước khi phát nhạc mới
@@ -104,6 +117,9 @@ public class SoundManager {
         try {
             Media media = new Media(path);
             currentMusicPlayer = new MediaPlayer(media);
+
+            // Đặt âm lượng ngay khi chơi
+            currentMusicPlayer.setVolume(masterVolume * musicVolume);
 
             if (loop) {
                 currentMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -124,5 +140,49 @@ public class SoundManager {
             currentMusicPlayer.dispose(); // Giải phóng tài nguyên
             currentMusicPlayer = null;
         }
+    }
+
+    // --- CÁC PHƯƠNG THỨC SET/GET ÂM LƯỢNG (MỚI) ---
+
+    /**
+     * Cập nhật âm lượng của nhạc nền đang phát (nếu có).
+     */
+    private void updateCurrentMusicVolume() {
+        if (currentMusicPlayer != null) {
+            currentMusicPlayer.setVolume(masterVolume * musicVolume);
+        }
+    }
+
+    public void setMasterVolume(double masterVolume) {
+        this.masterVolume = clamp(masterVolume, 0.0, 1.0);
+        updateCurrentMusicVolume(); // Cập nhật nhạc nền ngay lập tức
+    }
+
+    public void setMusicVolume(double musicVolume) {
+        this.musicVolume = clamp(musicVolume, 0.0, 1.0);
+        updateCurrentMusicVolume(); // Cập nhật nhạc nền ngay lập tức
+    }
+
+    public void setSfxVolume(double sfxVolume) {
+        // Âm thanh SFX được đọc khi playSfx, nên chỉ cần gán
+        this.sfxVolume = clamp(sfxVolume, 0.0, 1.0);
+    }
+
+    // Getters để Slider có thể đọc giá trị hiện tại
+    public double getMasterVolume() {
+        return masterVolume;
+    }
+
+    public double getMusicVolume() {
+        return musicVolume;
+    }
+
+    public double getSfxVolume() {
+        return sfxVolume;
+    }
+
+    // Hàm tiện ích
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 }

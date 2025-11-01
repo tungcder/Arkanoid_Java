@@ -11,6 +11,7 @@ import uet.oop.arkanoidgame.entities.brick.BrickGrid;
 import uet.oop.arkanoidgame.entities.item.Item;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 import uet.oop.arkanoidgame.SoundManager;
+import uet.oop.arkanoidgame.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class Ball {
 
     private double x, y;
     private double radius;
-    private double dx = 3, dy = -3;
+    private double dx = 1.5, dy = -1.5;
     private double prevX, prevY;
 
     private final List<Image> frames = new ArrayList<>(FRAME_COUNT);
@@ -76,7 +77,8 @@ public class Ball {
 
     private void loadFrames() {
         for (int i = 1; i <= FRAME_COUNT; i++) {
-            final String path = "/uet/oop/arkanoidgame/entities/ball/Ball_Image/ball" + i + ".png";
+            final String assetPath = "ball/ball" + i + ".png";
+            final String path = ThemeManager.getImagePath(assetPath);
             try {
                 frames.add(new Image(Objects.requireNonNull(
                         Ball.class.getResourceAsStream(path),

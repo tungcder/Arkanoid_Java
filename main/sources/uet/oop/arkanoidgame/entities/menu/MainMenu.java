@@ -7,20 +7,20 @@ import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import uet.oop.arkanoidgame.GamePanel;
 import uet.oop.arkanoidgame.SoundManager;
+import uet.oop.arkanoidgame.SettingScreen;
 
 public class MainMenu extends StackPane {
 
     // Màu sắc và style tùy chỉnh
-    private static final String FONT_SIZE = "26px";
+    private static final String FONT_SIZE = "15px";
     private static final String BUTTON_RADIUS = "15";
-    private static final String BUTTON_PADDING = "10 60 10 60";
+    private static final String BUTTON_PADDING = "10 30 10 30";
 
     // Style cho nút bình thường: nền tối, chữ neon
     private static final String NORMAL_STYLE =
@@ -62,7 +62,7 @@ public class MainMenu extends StackPane {
 
         // --- 1. Ảnh nền ---
         Image bgImage = new Image(
-                getClass().getResource("/uet/oop/arkanoidgame/entities/menu/menu_images/menu_bg1.jpg").toExternalForm()
+                getClass().getResource("/Images/Screen/Menu.jpg").toExternalForm()
         );
         ImageView background = new ImageView(bgImage);
         background.setFitWidth(800);
@@ -71,11 +71,11 @@ public class MainMenu extends StackPane {
         // --- 2. Các nút bấm ---
         Button startBtn = createStyledButton("START GAME", neonShadow);
         Button highScoreBtn = createStyledButton("HIGH SCORE", neonShadow);
-        Button optionsBtn = createStyledButton("OPTIONS", neonShadow);
+        Button settingBtn = createStyledButton("SETTING", neonShadow);
         Button exitBtn = createStyledButton("EXIT", neonShadow);
 
         // Gắn sự kiện hover
-        Button[] buttons = {startBtn, highScoreBtn, optionsBtn, exitBtn};
+        Button[] buttons = {startBtn, settingBtn, highScoreBtn, exitBtn};
         for (Button btn : buttons) {
             btn.setOnMouseEntered(e -> btn.setStyle(HOVER_STYLE));
             btn.setOnMouseExited(e -> btn.setStyle(NORMAL_STYLE));
@@ -90,28 +90,29 @@ public class MainMenu extends StackPane {
             gamePanel.startGame();
         });
 
-        highScoreBtn.setOnAction(e -> showHighScoreScreen()); // Bỏ 'stage'
-        optionsBtn.setOnAction(e -> System.out.println("Open Options!"));
+        highScoreBtn.setOnAction(e -> showHighScoreScreen());
+
+        settingBtn.setOnAction(e -> {
+            // Tạo màn hình Settings mới
+            SettingScreen settingScreen = new SettingScreen(this.stage, this.soundManager);
+            // Tạo Scene mới cho settings (sử dụng kích thước 800x600 từ ArkanoidGame)
+            Scene settingScene = new Scene(settingScreen, 800, 600);
+            this.stage.setScene(settingScene);
+        });
+
         exitBtn.setOnAction(e -> this.stage.close());
 
         // --- 4. Bố cục 2 cột (Giống code ban đầu) ---
 
-        // Cột bên trái (Start + Exit)
-        VBox leftBox = new VBox(30, startBtn, exitBtn); // Tăng khoảng cách VBox lên 30
-        leftBox.setAlignment(Pos.CENTER);
+        VBox menuColumn = new VBox(30, startBtn, settingBtn, highScoreBtn, exitBtn);
+        menuColumn.setAlignment(Pos.CENTER);
 
-        // Cột bên phải (High Score + Options)
-        VBox rightBox = new VBox(30, highScoreBtn, optionsBtn); // Tăng khoảng cách VBox lên 30
-        rightBox.setAlignment(Pos.CENTER);
-
-        // Gộp hai cột lại trong HBox
-        HBox menuBox = new HBox(120, leftBox, rightBox); // Tăng khoảng cách giữa 2 cột lên 120
-        menuBox.setAlignment(Pos.CENTER);
-        menuBox.setTranslateY(100); // Dịch chuyển nhóm nút xuống dưới để lấp đầy khoảng trống của Title
+        // Dịch chuyển nhóm nút xuống dưới (giống code cũ)
+        menuColumn.setTranslateY(100);
 
         // --- 5. Thêm vào StackPane ---
         // Chỉ thêm nền và menu box (đã bỏ Title Label)
-        getChildren().addAll(background, menuBox);
+        getChildren().addAll(background, menuColumn);
 
         setAlignment(Pos.CENTER);
     }
@@ -132,7 +133,7 @@ public class MainMenu extends StackPane {
 
         // Ảnh nền
         Image bgImage = new Image(
-                getClass().getResource("/uet/oop/arkanoidgame/entities/menu/menu_images/menu_bg1.jpg").toExternalForm()
+                getClass().getResource("/Images/Screen/Menu.jpg").toExternalForm()
         );
         ImageView background = new ImageView(bgImage);
         background.setFitWidth(800);
