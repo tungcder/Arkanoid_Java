@@ -36,9 +36,9 @@ public class SettingScreen extends StackPane {
     private static final double CONTENT_SPACING = 20;
 
     // Margins (Lề)
-    private static final double TITLE_MARGIN_TOP = 170;
-    private static final double SOUND_PANEL_MARGIN_TOP = 230;
-    private static final double THEME_PANEL_MARGIN_TOP = 270;
+    private static final double TITLE_MARGIN_TOP = 50;
+    private static final double SOUND_PANEL_MARGIN_TOP = 200;
+    private static final double THEME_PANEL_MARGIN_TOP = 200;
     private static final double PANEL_MARGIN_LEFT = 50;  // Cách lề trái 50px
     private static final double PANEL_MARGIN_RIGHT = 30; // Cách lề phải 50px
     private static final double BACK_BTN_MARGIN_BOTTOM = 15;
@@ -243,7 +243,7 @@ public class SettingScreen extends StackPane {
         StackPane.setMargin(themeBox, new Insets(THEME_PANEL_MARGIN_TOP, PANEL_MARGIN_RIGHT, 0, 0));
 
         // Căn lề Nút BACK (Góc dưới phải)
-        StackPane.setAlignment(backButton, Pos.BOTTOM_RIGHT);
+        StackPane.setAlignment(backButton, Pos.BOTTOM_CENTER);
         StackPane.setMargin(backButton, new Insets(0, BACK_BTN_MARGIN_RIGHT, BACK_BTN_MARGIN_BOTTOM, 0));
     }
 
