@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import uet.oop.arkanoidgame.entities.item.Item;
+import uet.oop.arkanoidgame.ThemeManager;
 
 import java.io.InputStream;
 
@@ -39,7 +40,8 @@ public abstract class Brick {
         // Load tất cả ảnh damage states
         this.damageImages = new Image[imageFileNames.length];
         for (int i = 0; i < imageFileNames.length; i++) {
-            this.damageImages[i] = loadImage("/uet/oop/arkanoidgame/entities/brick/Sprites/" + imageFileNames[i]);
+            String assetPath = "brick/" + imageFileNames[i];
+            this.damageImages[i] = loadImage(ThemeManager.getImagePath(assetPath));
         }
         this.image = damageImages[0]; // Mặc định ảnh nguyên vẹn
     }

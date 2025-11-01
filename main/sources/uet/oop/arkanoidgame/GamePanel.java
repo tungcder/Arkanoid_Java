@@ -22,6 +22,7 @@ import uet.oop.arkanoidgame.entities.map.MapManager;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 import uet.oop.arkanoidgame.entities.menu.MainMenu;
 import uet.oop.arkanoidgame.entities.item.Item;
+import uet.oop.arkanoidgame.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -53,8 +54,7 @@ public class GamePanel {
     private static final int BALL_RADIUS = 15;
 
     // Constants - Paths
-    private static final String BACKGROUND_PATH =
-            "/uet/oop/arkanoidgame/entities/menu/menu_images/game_bg2.jpg";
+    private static final String BACKGROUND_ASSET_PATH = "background/Background.jpg";
     private static final String INITIAL_MAP_PATH = "/Levels/Map1.csv";
 
     // Constants - Colors
@@ -127,7 +127,8 @@ public class GamePanel {
     // ========== Initialization Methods ==========
 
     private Image loadBackgroundImage() {
-        return new Image(getClass().getResource(BACKGROUND_PATH).toExternalForm());
+        String themedPath = ThemeManager.getImagePath(BACKGROUND_ASSET_PATH);
+        return new Image(getClass().getResource(themedPath).toExternalForm());
     }
 
     private DropShadow createTitleGlow() {
@@ -203,6 +204,8 @@ public class GamePanel {
 
     private void handleMouseClick() {
         if (ball.isAttachedToPaddle() && !gamePaused) {
+            paddle.handleHit();
+            soundManager.playSfx("PaddleHit");
             ball.releaseFromPaddle();
         }
     }

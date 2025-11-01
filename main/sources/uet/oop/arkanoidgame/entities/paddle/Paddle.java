@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
+import uet.oop.arkanoidgame.ThemeManager;
 
 import java.util.*;
 
@@ -41,10 +42,10 @@ public class Paddle {
 
         try {
             Image frame1 = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleA1.png")
+                    getClass().getResourceAsStream(ThemeManager.getImagePath("paddle/Paddle1.png"))
             ));
             Image frame2 = new Image(Objects.requireNonNull(
-                    getClass().getResourceAsStream("/uet/oop/arkanoidgame/entities/paddle/Paddle_Image/PaddleA2.png")
+                    getClass().getResourceAsStream(ThemeManager.getImagePath("paddle/Paddle2.png"))
             ));
             paddleFrames.add(frame1);
             paddleFrames.add(frame2);
