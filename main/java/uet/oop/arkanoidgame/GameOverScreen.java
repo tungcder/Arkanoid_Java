@@ -33,7 +33,7 @@ public class GameOverScreen extends StackPane {
 
     // Background path
     private static final String BG_IMAGE_PATH =
-            "/uet/oop/arkanoidgame/entities/menu/menu_images/game_over.png";
+            "/Images/Screen/GameOver.jpg";
     private static final String FONT_PATH = "/fonts/Orbitron-Bold.ttf";
 
     // Animation timings
@@ -113,7 +113,7 @@ public class GameOverScreen extends StackPane {
     }
 
     private Label createGameOverTitle() {
-        Label label = new Label("GAME OVER");
+        Label label = new Label("PLAY AGAIN?");
         label.setFont(loadCustomFont(FONT_PATH, 56));
         label.setTextFill(Color.web(RED_COLOR));
         label.setEffect(createGlow(DARK_RED, 30, 0.8));

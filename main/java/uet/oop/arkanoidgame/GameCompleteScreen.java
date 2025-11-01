@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -21,6 +22,8 @@ import javafx.util.Duration;
  * Cố định kích thước: 800x600
  */
 public class GameCompleteScreen extends StackPane {
+
+    private static final String VICTORY_ICON_PATH = "/Images/Screen/VictoryIcon.png";
 
     private final int finalScore;
     private final int totalTime;
@@ -62,13 +65,29 @@ public class GameCompleteScreen extends StackPane {
         VBox statsContainer = new VBox(15, scoreBox, timeBox);
         statsContainer.setAlignment(Pos.CENTER);
 
+        ImageView victoryImage = new ImageView();
+        try {
+            Image img = new Image(getClass().getResource(VICTORY_ICON_PATH).toExternalForm());
+            victoryImage.setImage(img);
+            victoryImage.setFitHeight(120); // Đặt kích thước ảnh bạn muốn
+            victoryImage.setPreserveRatio(true);
+        } catch (Exception e) {
+            System.err.println("Không tải được ảnh Victory: " + VICTORY_ICON_PATH);
+        }
+
         Rectangle bottomLine = createDecorativeLine();
         Button backButton = createBackButton();
 
-        contentBox.getChildren().addAll(victoryLabel, topLine, statsContainer, bottomLine, backButton);
+        contentBox.getChildren().addAll(
+                victoryLabel,
+                topLine,
+                statsContainer,
+                victoryImage,
+                bottomLine,
+                backButton);
 
         getChildren().addAll(overlay, contentBox);
-        playAnimations(victoryLabel, scoreBox, timeBox, backButton);
+        playAnimations(victoryLabel, scoreBox, timeBox, victoryImage, backButton);
     }
 
     private Label createVictoryTitle() {
@@ -167,7 +186,7 @@ public class GameCompleteScreen extends StackPane {
         return button;
     }
 
-    private void playAnimations(Label title, VBox scoreBox, VBox timeBox, Button button) {
+    private void playAnimations(Label title, VBox scoreBox, VBox timeBox, ImageView image, Button button) {
         FadeTransition titleFade = new FadeTransition(Duration.seconds(1), title);
         titleFade.setFromValue(0);
         titleFade.setToValue(1);
@@ -187,6 +206,11 @@ public class GameCompleteScreen extends StackPane {
         timeFade.setFromValue(0);
         timeFade.setToValue(1);
         timeFade.setDelay(Duration.seconds(0.7));
+
+        FadeTransition imageFade = new FadeTransition(Duration.seconds(0.8), image);
+        imageFade.setFromValue(0);
+        imageFade.setToValue(1);
+        imageFade.setDelay(Duration.seconds(1));
 
         FadeTransition buttonFade = new FadeTransition(Duration.seconds(0.8), button);
         buttonFade.setFromValue(0);

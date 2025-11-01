@@ -125,8 +125,6 @@ public class MainMenu extends StackPane {
             }
         });
 
-        highScoreBtn.setOnAction(e -> showHighScoreScreen());
-
         settingBtn.setOnAction(e -> {
             // Tạo màn hình Settings mới
             SettingScreen settingScreen = new SettingScreen(this.stage, this.soundManager);
@@ -135,11 +133,13 @@ public class MainMenu extends StackPane {
             this.stage.setScene(settingScene);
         });
 
+        highScoreBtn.setOnAction(e -> showHighScoreScreen());
+
         exitBtn.setOnAction(e -> this.stage.close());
 
         // --- 4. Bố cục ---
         // Layout dạng cột dọc với tất cả các nút
-        VBox menuColumn = new VBox(30, startBtn, continueBtn, settingBtn, highScoreBtn, exitBtn);
+        VBox menuColumn = new VBox(20, startBtn, continueBtn, settingBtn, highScoreBtn, exitBtn);
         menuColumn.setAlignment(Pos.CENTER);
         menuColumn.setTranslateY(100); // Dịch chuyển nhóm nút xuống dưới
 

@@ -8,7 +8,7 @@ import uet.oop.arkanoidgame.entities.paddle.Paddle;
 import uet.oop.arkanoidgame.GamePanel;
 
 public class Buff_ExtraLives extends Item {
-    private static final String IMAGE_PATH = "/uet/oop/arkanoidgame/entities/item/Buff/Buff_Image/ExtraLives.png";
+    private static final String IMAGE_PATH = "/Images/Items/Buff/ExtraLives.png";
     private static final int EXTRA_LIVES = 1; // số mạng cộng thêm
 
     public Buff_ExtraLives(double x, double y) {
