@@ -155,7 +155,6 @@ public class MainMenu extends StackPane {
         return btn;
     }
 
-    // ✅ SỬA LẠI METHOD NÀY
     private void showHighScoreScreen() {
         HighScoreScreen highScoreScreen = new HighScoreScreen(() -> {
             // Quay lại menu

@@ -32,8 +32,7 @@ public class GameOverScreen extends StackPane {
     private static final String NORMAL_RED_GRADIENT = "#FF6B6B, #FF4444";
 
     // Background path
-    private static final String BG_IMAGE_PATH =
-            "/Images/Screen/GameOver.jpg";
+    private static final String BG_IMAGE_PATH = "/Images/Screen/GameOver.jpg";
     private static final String FONT_PATH = "/fonts/Orbitron-Bold.ttf";
 
     // Animation timings

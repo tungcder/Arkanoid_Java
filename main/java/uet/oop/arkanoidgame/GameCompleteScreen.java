@@ -23,7 +23,7 @@ import javafx.util.Duration;
  */
 public class GameCompleteScreen extends StackPane {
 
-    private static final String VICTORY_ICON_PATH = "/Images/Screen/VictoryIcon.png";
+    private static final String BG_IMAGE_PATH = "/Images/Screen/GameComplete.jpg";
 
     private final int finalScore;
     private final int totalTime;
@@ -43,7 +43,16 @@ public class GameCompleteScreen extends StackPane {
 
     private void setupUI() {
         // Background gradient
-        setStyle("-fx-background-color: linear-gradient(to bottom, #0a0a1e, #1e0a32);");
+        try {
+            Image bgImg = new Image(getClass().getResource(BG_IMAGE_PATH).toExternalForm());
+            ImageView background = new ImageView(bgImg);
+            background.setFitWidth(800);
+            background.setFitHeight(600);
+            getChildren().add(background); // Thêm ảnh nền vào StackPane (lớp dưới cùng)
+        } catch (Exception e) {
+            //System.err.println("Không tải được ảnh nền GameComplete: " + VICTORY_ICON_PATH);
+            setStyle("-fx-background-color: linear-gradient(to bottom, #0a0a1e, #1e0a32);");
+        }
 
         // Overlay để dễ đọc chữ
         Rectangle overlay = new Rectangle(800, 600);
@@ -65,16 +74,6 @@ public class GameCompleteScreen extends StackPane {
         VBox statsContainer = new VBox(15, scoreBox, timeBox);
         statsContainer.setAlignment(Pos.CENTER);
 
-        ImageView victoryImage = new ImageView();
-        try {
-            Image img = new Image(getClass().getResource(VICTORY_ICON_PATH).toExternalForm());
-            victoryImage.setImage(img);
-            victoryImage.setFitHeight(120); // Đặt kích thước ảnh bạn muốn
-            victoryImage.setPreserveRatio(true);
-        } catch (Exception e) {
-            System.err.println("Không tải được ảnh Victory: " + VICTORY_ICON_PATH);
-        }
-
         Rectangle bottomLine = createDecorativeLine();
         Button backButton = createBackButton();
 
@@ -82,12 +81,11 @@ public class GameCompleteScreen extends StackPane {
                 victoryLabel,
                 topLine,
                 statsContainer,
-                victoryImage,
                 bottomLine,
                 backButton);
 
         getChildren().addAll(overlay, contentBox);
-        playAnimations(victoryLabel, scoreBox, timeBox, victoryImage, backButton);
+        playAnimations(victoryLabel, scoreBox, timeBox, backButton);
     }
 
     private Label createVictoryTitle() {
@@ -186,7 +184,7 @@ public class GameCompleteScreen extends StackPane {
         return button;
     }
 
-    private void playAnimations(Label title, VBox scoreBox, VBox timeBox, ImageView image, Button button) {
+    private void playAnimations(Label title, VBox scoreBox, VBox timeBox, Button button) {
         FadeTransition titleFade = new FadeTransition(Duration.seconds(1), title);
         titleFade.setFromValue(0);
         titleFade.setToValue(1);
@@ -207,11 +205,6 @@ public class GameCompleteScreen extends StackPane {
         timeFade.setToValue(1);
         timeFade.setDelay(Duration.seconds(0.7));
 
-        FadeTransition imageFade = new FadeTransition(Duration.seconds(0.8), image);
-        imageFade.setFromValue(0);
-        imageFade.setToValue(1);
-        imageFade.setDelay(Duration.seconds(1));
-
         FadeTransition buttonFade = new FadeTransition(Duration.seconds(0.8), button);
         buttonFade.setFromValue(0);
         buttonFade.setToValue(1);
@@ -221,7 +214,6 @@ public class GameCompleteScreen extends StackPane {
         titleScale.play();
         scoreFade.play();
         timeFade.play();
-        imageFade.play();  // ✅ THÊM DÒNG NÀY - nó đã bị thiếu!
         buttonFade.play();
     }
 }
