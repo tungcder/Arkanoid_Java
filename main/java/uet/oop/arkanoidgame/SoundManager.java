@@ -8,12 +8,6 @@ import java.util.HashMap;
 
 /**
  * Quản lý tất cả âm thanh trong game.
- * - Sử dụng MediaPlayer cho Music (dài, lặp lại).
- * - Sử dụng AudioClip cho SFX (ngắn, độ trễ thấp).
- * * ĐÃ NÂNG CẤP:
- * - Thêm biến cho Master, Music, và SFX volume.
- * - Thêm các phương thức set/get để điều chỉnh âm lượng.
- * - Cập nhật các phương thức play() để tuân theo mức âm lượng đã đặt.
  */
 public class SoundManager {
 
@@ -30,7 +24,7 @@ public class SoundManager {
     private MediaPlayer currentMusicPlayer;
     private String currentMusicName = null;
 
-    // --- BIẾN QUẢN LÝ ÂM LƯỢNG (MỚI) ---
+    // --- BIẾN QUẢN LÝ ÂM LƯỢNG ---
     // Mặc định tất cả là 100% (1.0)
     private double masterVolume = 1.0;
     private double musicVolume = 1.0;
@@ -60,19 +54,18 @@ public class SoundManager {
         try {
             URL resourceUrl = getClass().getResource(resourcePath);
             if (resourceUrl == null) {
-                System.err.println("Không tìm thấy file SFX: " + resourcePath);
+                //System.err.println("Không tìm thấy file SFX: " + resourcePath);
                 return;
             }
             AudioClip clip = new AudioClip(resourceUrl.toExternalForm());
             sfxCache.put(name, clip);
         } catch (Exception e) {
-            System.err.println("Lỗi khi tải SFX: " + resourcePath + " - " + e.getMessage());
+            //System.err.println("Lỗi khi tải SFX: " + resourcePath + " - " + e.getMessage());
         }
     }
 
     /**
      * Phát một hiệu ứng âm thanh (SFX) ngắn.
-     * CHÚ THÍCH: Đã cập nhật để sử dụng `clip.play(volume)`
      */
     public void playSfx(String name) {
         AudioClip clip = sfxCache.get(name);
@@ -80,7 +73,7 @@ public class SoundManager {
             // Tính toán âm lượng cuối cùng và phát
             clip.play(masterVolume * sfxVolume);
         } else {
-            System.err.println("SFX '" + name + "' chưa được tải!");
+            //System.err.println("SFX '" + name + "' chưa được tải!");
         }
     }
 
@@ -90,24 +83,23 @@ public class SoundManager {
         try {
             URL resourceUrl = getClass().getResource(resourcePath);
             if (resourceUrl == null) {
-                System.err.println("Không tìm thấy file Music: " + resourcePath);
+                //System.err.println("Không tìm thấy file Music: " + resourcePath);
                 return;
             }
             musicPaths.put(name, resourceUrl.toExternalForm());
         } catch (Exception e) {
-            System.err.println("Lỗi khi tải Music path: " + resourcePath + " - " + e.getMessage());
+            //System.err.println("Lỗi khi tải Music path: " + resourcePath + " - " + e.getMessage());
         }
     }
 
     /**
      * Phát một file nhạc nền.
-     * @param name Tên nhạc đã tải (ví dụ: "Menu")
-     * @param loop Lặp lại (true) hay phát 1 lần (false)
-     * CHÚ THÍCH: Đã cập nhật để `setVolume` ngay khi tạo MediaPlayer
+     * @param name : tên nhạc.
+     * @param loop : phát lại.
      */
     public void playMusic(String name, boolean loop) {
 
-        // Nếu nhạc được yêu cầu đã và đang phát, không làm gì cả (để nhạc tiếp tục)
+        // Nếu nhạc được yêu cầu đã và đang phát, không làm gì cả
         if (name.equals(currentMusicName) && currentMusicPlayer != null &&
                 currentMusicPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
             return; // Đã đang phát, không cần load lại
@@ -118,7 +110,7 @@ public class SoundManager {
 
         String path = musicPaths.get(name);
         if (path == null) {
-            System.err.println("Music '" + name + "' chưa được tải!");
+            //System.err.println("Music '" + name + "' chưa được tải!");
             return;
         }
 
@@ -136,7 +128,7 @@ public class SoundManager {
             currentMusicPlayer.play();
             currentMusicName = name;
         } catch (Exception e) {
-            System.err.println("Lỗi khi phát music: " + name + " - " + e.getMessage());
+            //System.err.println("Lỗi khi phát music: " + name + " - " + e.getMessage());
         }
     }
 
@@ -152,7 +144,7 @@ public class SoundManager {
         }
     }
 
-    // --- CÁC PHƯƠNG THỨC SET/GET ÂM LƯỢNG (MỚI) ---
+    // --- CÁC PHƯƠNG THỨC SET/GET ÂM LƯỢNG ---
 
     /**
      * Cập nhật âm lượng của nhạc nền đang phát (nếu có).
