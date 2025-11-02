@@ -25,24 +25,23 @@ import java.util.function.Consumer;
 
 /**
  * Lớp quản lý màn hình Cài Đặt (Settings)
- * Cho phép điều chỉnh âm lượng (trái) và chủ đề (phải).
+ * Cho phép điều chỉnh âm lượng và chủ đề.
  */
 public class SettingScreen extends StackPane {
 
     // --- Hằng số Quản lý Bố cục (Layout) ---
-    private static final String BACKGROUND_IMAGE_PATH = "/Images/Screen/Setting.png";
+    private static final String BACKGROUND_IMAGE_PATH = "/Images/Screen/Setting.jpg";
     private static final double PANEL_WIDTH = 350;
     private static final double CONTENT_PADDING = 0;
-    private static final double CONTENT_SPACING = 20;
+    private static final double CONTENT_SPACING = 10;
 
     // Margins (Lề)
-    private static final double TITLE_MARGIN_TOP = 50;
-    private static final double SOUND_PANEL_MARGIN_TOP = 200;
-    private static final double THEME_PANEL_MARGIN_TOP = 200;
+    private static final double TITLE_MARGIN_TOP = 100;
+    private static final double SOUND_PANEL_MARGIN_TOP = 260;
+    private static final double THEME_PANEL_MARGIN_TOP = 250;
     private static final double PANEL_MARGIN_LEFT = 50;  // Cách lề trái 50px
     private static final double PANEL_MARGIN_RIGHT = 30; // Cách lề phải 50px
     private static final double BACK_BTN_MARGIN_BOTTOM = 15;
-    private static final double BACK_BTN_MARGIN_RIGHT = 15;
 
     // --- Hằng số Component (Thành phần) ---
     private static final double TITLE_FONT_SIZE = 40;
@@ -78,7 +77,7 @@ public class SettingScreen extends StackPane {
 
     // --- Hằng số Style Nút "THEME" ---
     private static final String THEME_NORMAL_STYLE = "-fx-background-color: rgba(60, 30, 60, 0.8);"
-            + "-fx-text-fill: #00ffff;" // Màu tím neon
+            + "-fx-text-fill: #00ffff;"
             + "-fx-font-size: 18px;"
             + "-fx-font-weight: bold;"
             + "-fx-border-color: #00ffff;"
@@ -86,7 +85,7 @@ public class SettingScreen extends StackPane {
             + "-fx-border-radius: 10;"
             + "-fx-background-radius: 10;"
             + "-fx-padding: 12 40 12 40;"
-            + "-fx-pref-width: 250px;"; // Đặt chiều rộng cố định
+            + "-fx-pref-width: 250px;";
 
     private static final String THEME_HOVER_STYLE = "-fx-background-color: linear-gradient(to bottom, #ffc04c, #ff8c00);"
             + "-fx-text-fill: #1a1a1a;"
@@ -114,7 +113,7 @@ public class SettingScreen extends StackPane {
     private final SoundManager soundManager;
 
     private final java.util.List<String> themeNames = java.util.List.of("Theme1", "Theme2", "Theme3");
-    private final java.util.List<String> themeDisplayNames = java.util.List.of("SPACE", "EGYPT", "OCEAN");
+    private final java.util.List<String> themeDisplayNames = java.util.List.of("SPACE", "PYRAMID", "OCEAN");
     private int currentThemeIndex;
     private Label currentThemeLabel;
 
@@ -123,7 +122,7 @@ public class SettingScreen extends StackPane {
         String initialTheme = ThemeManager.getCurrentTheme();
         this.currentThemeIndex = themeNames.indexOf(initialTheme);
         if (this.currentThemeIndex == -1) {
-            this.currentThemeIndex = 0; // Mặc định là theme đầu tiên nếu không tìm thấy
+            this.currentThemeIndex = 0;
         }
 
         this.stage = stage;
@@ -140,7 +139,7 @@ public class SettingScreen extends StackPane {
         // --- 2. Tiêu đề ---
         Label title = createTitle("SETTINGS");
 
-        // --- 3. Hộp chứa nội dung ÂM THANH (Bên trái) ---
+        // --- 3. Hộp chứa nội dung ÂM THANH ---
         VBox soundBox = new VBox(CONTENT_SPACING);
         soundBox.setAlignment(Pos.TOP_CENTER); // Căn giữa các thanh trượt
         soundBox.setPadding(new Insets(CONTENT_PADDING));
@@ -172,7 +171,7 @@ public class SettingScreen extends StackPane {
                 sfxVolumeBox
         );
 
-        // --- 4. Hộp chứa nội dung CHỦ ĐỀ (Bên phải) ---
+        // --- 4. Hộp chứa nội dung CHỦ ĐỀ ---
         VBox themeBox = new VBox(CONTENT_SPACING);
         themeBox.setAlignment(Pos.TOP_CENTER);
         themeBox.setPadding(new Insets(CONTENT_PADDING));
@@ -183,8 +182,6 @@ public class SettingScreen extends StackPane {
         themeTitle.setFont(Font.font("System", FontWeight.BOLD, 32));
         themeTitle.setTextFill(Color.web("#00ffff"));
         themeTitle.setEffect(new DropShadow(20, Color.web("#00ffff")));
-
-        // Hộp chọn theme
 
         // Tạo các nút mũi tên
         Button leftArrow = new Button("<");
@@ -242,13 +239,13 @@ public class SettingScreen extends StackPane {
         StackPane.setAlignment(themeBox, Pos.TOP_RIGHT);
         StackPane.setMargin(themeBox, new Insets(THEME_PANEL_MARGIN_TOP, PANEL_MARGIN_RIGHT, 0, 0));
 
-        // Căn lề Nút BACK (Góc dưới phải)
+        // Căn lề Nút BACK (Giữa bên dưới)
         StackPane.setAlignment(backButton, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(backButton, new Insets(0, BACK_BTN_MARGIN_RIGHT, BACK_BTN_MARGIN_BOTTOM, 0));
+        StackPane.setMargin(backButton, new Insets(0, 0, BACK_BTN_MARGIN_BOTTOM, 0));
     }
 
     /**
-     * Hàm tiện ích tạo thanh trượt âm lượng
+     * Hàm tiện ích tạo thanh trượt âm lượng.
      */
     private VBox createVolumeSlider(String label, double initialValue, Consumer<Double> onVolumeChange) {
         // Tiêu đề của thanh trượt
@@ -294,7 +291,7 @@ public class SettingScreen extends StackPane {
     }
 
     /**
-     * Hàm tiện ích tạo Tiêu đề
+     * Hàm tiện ích tạo Tiêu đề.
      */
     private Label createTitle(String text) {
         Label label = new Label(text);
@@ -305,7 +302,7 @@ public class SettingScreen extends StackPane {
     }
 
     /**
-     * Hàm mới tạo nút BACK
+     * Hàm mới tạo nút BACK.
      */
     private Button createBackButton() {
         Button backButton = new Button("BACK");
@@ -317,7 +314,7 @@ public class SettingScreen extends StackPane {
     }
 
     /**
-     * Hàm tiện ích tạo nút CHỦ ĐỀ
+     * Hàm tiện ích tạo nút CHỦ ĐỀ.
      */
     private Button createThemeButton(String text) {
         Button btn = new Button(text);
@@ -328,10 +325,8 @@ public class SettingScreen extends StackPane {
         return btn;
     }
 
-    // CHÚ THÍCH: THÊM 3 PHƯƠNG THỨC MỚI SAU
-
     /**
-     * (MỚI) Chuyển sang chủ đề phía trước (bên trái)
+     * Chuyển sang chủ đề phía trước.
      */
     private void selectPreviousTheme() {
         currentThemeIndex--;
@@ -342,7 +337,7 @@ public class SettingScreen extends StackPane {
     }
 
     /**
-     * (MỚI) Chuyển sang chủ đề tiếp theo (bên phải)
+     * Chuyển sang chủ đề tiếp theo.
      */
     private void selectNextTheme() {
         currentThemeIndex++;
@@ -353,7 +348,7 @@ public class SettingScreen extends StackPane {
     }
 
     /**
-     * (MỚI) Cập nhật UI và ThemeManager toàn cục
+     * Cập nhật UI và ThemeManager toàn cục.
      */
     private void updateTheme() {
         String themeName = themeNames.get(currentThemeIndex);
@@ -367,11 +362,4 @@ public class SettingScreen extends StackPane {
 
         SettingManager.saveSettings(soundManager);
     }
-
-    // CHÚ THÍCH: XÓA PHƯƠNG THỨC createThemeButton()
-    /*
-    private Button createThemeButton(String text) {
-        ... (XÓA TOÀN BỘ PHƯƠNG THỨC NÀY)
-    }
-    */
 }

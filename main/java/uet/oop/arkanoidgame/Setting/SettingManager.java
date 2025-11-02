@@ -12,19 +12,19 @@ import java.util.Properties;
 
 /**
  * Lớp tĩnh quản lý việc ĐỌC và LƯU file cài đặt game.
- * Sử dụng file .properties đơn giản.
+ * Sử dụng file .properties.
  */
 public class SettingManager {
 
     // Tên file cài đặt
     private static final String CONFIG_FILE_NAME = "ArkanoidSettings.properties";
 
-    // Đường dẫn đầy đủ đến file (lưu ở thư mục home của user, ví dụ: C:\Users\ADMIN)
+    // Đường dẫn đầy đủ đến file
     private static final String CONFIG_FILE_PATH = System.getProperty("user.home") + "/" + CONFIG_FILE_NAME;
 
     /**
      * Tải cài đặt từ file và áp dụng cho SoundManager, ThemeManager.
-     * Được gọi khi game khởi động.
+     * Được gọi đầu game.
      */
     public static void loadSettings(SoundManager soundManager) {
         Properties props = new Properties();
@@ -48,12 +48,10 @@ public class SettingManager {
                     props.getProperty("theme.current", "Theme1")
             );
 
-            System.out.println("Đã tải cài đặt từ: " + CONFIG_FILE_PATH);
+            //System.out.println("Đã tải cài đặt từ: " + CONFIG_FILE_PATH);
 
         } catch (IOException e) {
-            // Không tìm thấy file (lần đầu chơi) hoặc file bị lỗi.
-            // Không cần làm gì cả, game sẽ dùng cài đặt mặc định (1.0, Theme1).
-            System.out.println("Không tìm thấy file cài đặt, sử dụng mặc định.");
+            //System.out.println("Không tìm thấy file cài đặt, sử dụng mặc định.");
         }
     }
 
@@ -75,10 +73,10 @@ public class SettingManager {
         // 3. Ghi ra file
         try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
             props.store(output, "Arkanoid Game Settings");
-            System.out.println("Đã lưu cài đặt vào: " + CONFIG_FILE_PATH);
+            //System.out.println("Đã lưu cài đặt vào: " + CONFIG_FILE_PATH);
 
         } catch (IOException e) {
-            System.err.println("Lỗi khi lưu cài đặt: " + e.getMessage());
+            //System.err.println("Lỗi khi lưu cài đặt: " + e.getMessage());
         }
     }
 }

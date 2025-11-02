@@ -24,8 +24,8 @@ public class Paddle {
 
     private boolean reverseDirection = false;
 
-    // === Buff paddle ===
-    private double baseWidth;           // chiều rộng gốc
+    // Buff paddle
+    private double baseWidth;   // chiều rộng gốc
     private double sizeMultiplier = 1.0;
     private Timeline sizeBuffTimer;
 
@@ -50,11 +50,13 @@ public class Paddle {
             paddleFrames.add(frame1);
             paddleFrames.add(frame2);
         } catch (NullPointerException e) {
-            System.err.println("Không thể tải ảnh cho paddle. Hãy kiểm tra lại đường dẫn file.");
+            //System.err.println("Không thể tải ảnh cho paddle. Hãy kiểm tra lại đường dẫn file.");
         }
     }
 
-    // Update vị trí theo bàn phím
+    /**
+     * Update vị trí.
+     */
     public void update() {
         if (keys.contains(KeyCode.LEFT) && x > 0) x -= speed;
         if (keys.contains(KeyCode.RIGHT) && x + width < CANVAS_WIDTH) x += speed;
@@ -69,7 +71,9 @@ public class Paddle {
         }
     }
 
-    // Điều khiển paddle bằng chuột
+    /**
+     * Điều khiển paddle bằng chuột.
+     */
     public void handleMouseMove(MouseEvent e) {
         double mouseX = e.getX();
         if (reverseDirection) {
@@ -78,7 +82,9 @@ public class Paddle {
         x = Math.max(0, Math.min(mouseX - width / 2, CANVAS_WIDTH - width));
     }
 
-    //Kiểm tra va chạm ball để load frame 2
+    /**
+     * Kiểm tra va chạm ball để load frame 2.
+     */
     public void handleHit() {
         // Chỉ kích hoạt nếu đang ở frame 1
         if (this.currentFrameIndex == 0) {
@@ -95,8 +101,9 @@ public class Paddle {
         gc.drawImage(currentFrame, x, y, width, height);
     }
 
-    // Buff Paddle: Bigger / Smaller
-
+    /**
+    * Buff Paddle: Bigger / Smaller.
+    */
     public void applySizeBuff(double multiplier, double durationSeconds) {
         // Hủy buff cũ nếu đang chạy
         if (sizeBuffTimer != null) sizeBuffTimer.stop();
@@ -122,9 +129,7 @@ public class Paddle {
         sizeBuffTimer.play();
     }
 
-    // ==========================
     // Getter / Setter cơ bản
-    // ==========================
     public void addKey(KeyCode code) { keys.add(code); }
     public void removeKey(KeyCode code) { keys.remove(code); }
 
