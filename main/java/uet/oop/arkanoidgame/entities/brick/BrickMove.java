@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 
 public class BrickMove extends Brick implements Movable {
-    private static final String IMAGE_PATH = "weak.png";
+    private static final String IMAGE_PATH = "unbreak.png";
     private static final double SPEED = 1.0;
     private int direction = 1;
 
@@ -14,7 +14,18 @@ public class BrickMove extends Brick implements Movable {
     private boolean rangeInitialized = false;
 
     public BrickMove(double x, double y, double width, double height) {
-        super(x, y, width, height, 1, IMAGE_PATH);
+        super(x, y, width, height, Integer.MAX_VALUE, IMAGE_PATH);
+        this.breakable = false;  // ✅ Sửa: Đặt rõ ràng là unbreakable
+    }
+
+    @Override
+    public boolean isBreakable() {
+        return false;  // ✅ Sửa: Không coi là breakable
+    }
+
+    @Override
+    public boolean hit() {
+        return false;  // ✅ Sửa: Không cho phép hit (giống BrickUnbreakable)
     }
 
     @Override

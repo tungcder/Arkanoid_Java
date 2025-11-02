@@ -4,8 +4,10 @@ import uet.oop.arkanoidgame.entities.brick.BrickGrid;
 
 public class MapManager {
     private String[] levelPaths = {
-            "/Levels/Map1.csv",
-            "/Levels/Map2.csv"
+            "/Levels/Map4.csv",
+            "/Levels/Map3.csv",
+            "/Levels/Map2.csv",
+            "/Levels/Map1.csv"
             // Add more levels as needed
     };
     private int currentLevel = 0;

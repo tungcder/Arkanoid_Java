@@ -23,13 +23,13 @@ public class Ball {
     private static final int FRAME_COUNT = 8;
     private static final double FRAME_STEP = 10;
     private static final double RESTITUTION = 1.0;
-    private static final double MAX_SPEED = 8.0;
+    private static final double MAX_SPEED = 4.0;
     private static final double MIN_ABS_DY = 2.0;
     private static final double EPS = 1e-6;
 
     private double x, y;
     private double radius;
-    private double dx = 6, dy = -6;
+    private double dx = 3, dy = 3;
     private double prevX, prevY;
 
     private final List<Image> frames = new ArrayList<>(FRAME_COUNT);
