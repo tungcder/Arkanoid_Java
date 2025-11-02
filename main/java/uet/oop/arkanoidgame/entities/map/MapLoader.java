@@ -7,68 +7,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapLoader {
-    // Map thủ công mặc định nếu không load được file CSV
-    private static int[][] getDefaultMap() {
-        return new int[][] {
-                {0, 0, 1, 1, 1, 0, 0},
-                {0, 2, 2, 3, 2, 2, 0},
-                {1, 1, 1, 4, 1, 1, 1},
-                {0, 0, 2, 2, 2, 0, 0}
-        };
-    }
+
+    // Map mặc định – chỉ tạo 1 lần
+    private static final int[][] DEFAULT_MAP = {
+            {0, 0, 1, 1, 1, 0, 0},
+            {0, 2, 2, 3, 2, 2, 0},
+            {1, 1, 1, 4, 1, 1, 1},
+            {0, 0, 2, 2, 2, 0, 0}
+    };
 
     public static int[][] loadMap(String filePath) {
-        List<List<Integer>> tempMap = new ArrayList<>();
         String fullPath = "/" + filePath;
+        List<int[]> rows = new ArrayList<>();
+        int maxCols = 0;
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(MapLoader.class.getResourceAsStream(fullPath)))) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(MapLoader.class.getResourceAsStream(fullPath)))) {
+
             String line;
-            int maxCols = 0;
             while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue; // Bỏ qua dòng trống
+                }
+
                 System.out.println("Đọc dòng CSV: " + line);
                 String[] values = line.split(",");
-                List<Integer> row = new ArrayList<>();
-                for (String val : values) {
-                    String trimmed = val.trim();
+
+                int[] row = new int[values.length];
+                for (int i = 0; i < values.length; i++) {
+                    String val = values[i].trim();
                     try {
-                        row.add(Integer.parseInt(trimmed));
+                        row[i] = Integer.parseInt(val);
                     } catch (NumberFormatException e) {
-                        System.out.println("Định dạng số không hợp lệ: " + trimmed);
-                        return getDefaultMap(); // Trả về map mặc định nếu có lỗi
+                        System.out.println("Lỗi định dạng số: '" + val + "' → Dùng map mặc định.");
+                        return DEFAULT_MAP;
                     }
                 }
-                if (!row.isEmpty()) {
-                    tempMap.add(row);
-                    maxCols = Math.max(maxCols, row.size());
-                }
+
+                rows.add(row);
+                maxCols = Math.max(maxCols, row.length);
             }
 
-            if (tempMap.isEmpty()) {
-                System.out.println("File CSV trống: " + fullPath + ". Sử dụng map mặc định.");
-                return getDefaultMap();
+            if (rows.isEmpty()) {
+                System.out.println("File CSV trống: " + fullPath + " → Dùng map mặc định.");
+                return DEFAULT_MAP;
             }
 
-            // Chuyển sang mảng 2D, padding nếu cần
-            int rows = tempMap.size();
-            int[][] map = new int[rows][maxCols];
-            for (int i = 0; i < rows; i++) {
-                List<Integer> rowList = tempMap.get(i);
-                for (int j = 0; j < rowList.size(); j++) {
-                    map[i][j] = rowList.get(j);
-                }
-                // Padding với 0 nếu dòng ngắn hơn maxCols
-                for (int j = rowList.size(); j < maxCols; j++) {
+            // Tạo mảng 2D + padding 0
+            int[][] map = new int[rows.size()][maxCols];
+            for (int i = 0; i < rows.size(); i++) {
+                int[] src = rows.get(i);
+                System.arraycopy(src, 0, map[i], 0, src.length);
+                for (int j = src.length; j < maxCols; j++) {
                     map[i][j] = 0;
                 }
             }
+
+            System.out.println("Tải map thành công: " + rows.size() + "x" + maxCols);
             return map;
+
         } catch (IOException e) {
-            System.out.println("Lỗi IO khi tải CSV: " + fullPath + ". Sử dụng map mặc định.");
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            System.out.println("Không tìm thấy file CSV: " + fullPath + ". Sử dụng map mặc định.");
-            e.printStackTrace();
+            System.out.println("Lỗi đọc file: " + fullPath + " → Dùng map mặc định.");
+            return DEFAULT_MAP;
         }
-        return getDefaultMap(); // Trả về map mặc định nếu có lỗi
     }
 }

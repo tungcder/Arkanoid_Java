@@ -1,4 +1,3 @@
-// src/main/java/uet/oop/arkanoidgame/entities/brick/BrickMove.java
 package uet.oop.arkanoidgame.entities.brick;
 
 import javafx.scene.paint.Color;
@@ -15,17 +14,6 @@ public class BrickMove extends Brick implements Movable {
 
     public BrickMove(double x, double y, double width, double height) {
         super(x, y, width, height, Integer.MAX_VALUE, IMAGE_PATH);
-        this.breakable = false;  // ✅ Sửa: Đặt rõ ràng là unbreakable
-    }
-
-    @Override
-    public boolean isBreakable() {
-        return false;  // ✅ Sửa: Không coi là breakable
-    }
-
-    @Override
-    public boolean hit() {
-        return false;  // ✅ Sửa: Không cho phép hit (giống BrickUnbreakable)
     }
 
     @Override
@@ -80,6 +68,15 @@ public class BrickMove extends Brick implements Movable {
     public void reset() {
         rangeInitialized = false;
         direction = 1;
+    }
+    @Override
+    public boolean hit() {
+        return false;
+    }
+
+    @Override
+    public boolean isBreakable() {
+        return false;
     }
 
     @Override

@@ -2,15 +2,15 @@ package uet.oop.arkanoidgame.entities.brick;
 
 import javafx.scene.paint.Color;
 import uet.oop.arkanoidgame.entities.item.*;
-import uet.oop.arkanoidgame.entities.item.Buff_BiggerPaddle;
-import uet.oop.arkanoidgame.entities.item.Buff_BiggerBall;
-import uet.oop.arkanoidgame.entities.item.Buff_ExplosiveBall;
-import uet.oop.arkanoidgame.entities.item.Buff_ExtraLives;
-import uet.oop.arkanoidgame.entities.item.DeBuff_FastBall;
-import uet.oop.arkanoidgame.entities.item.DeBuff_SmallerBall;
-import uet.oop.arkanoidgame.entities.item.DeBuff_SmallerPaddle;
-import uet.oop.arkanoidgame.entities.item.DeBuff_ReversePaddle;
-import uet.oop.arkanoidgame.entities.item.Buff_SlowerBall;
+import uet.oop.arkanoidgame.entities.item.Buff.Buff_BiggerPaddle;
+import uet.oop.arkanoidgame.entities.item.Buff.Buff_BiggerBall;
+import uet.oop.arkanoidgame.entities.item.Buff.Buff_ExplosiveBall;
+import uet.oop.arkanoidgame.entities.item.Buff.Buff_ExtraLives;
+import uet.oop.arkanoidgame.entities.item.DeBuff.DeBuff_FastBall;
+import uet.oop.arkanoidgame.entities.item.DeBuff.DeBuff_SmallerBall;
+import uet.oop.arkanoidgame.entities.item.DeBuff.DeBuff_SmallerPaddle;
+import uet.oop.arkanoidgame.entities.item.DeBuff.DeBuff_ReversePaddle;
+import uet.oop.arkanoidgame.entities.item.Buff.Buff_SlowerBall;
 
 public class BrickPowerup extends Brick {
     private static final String IMAGE_PATH = "weak.png";

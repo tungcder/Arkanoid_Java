@@ -1,9 +1,10 @@
-package uet.oop.arkanoidgame.entities.item;
+package uet.oop.arkanoidgame.entities.item.DeBuff;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import uet.oop.arkanoidgame.entities.ball.Ball;
+import uet.oop.arkanoidgame.entities.item.Item;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 public class DeBuff_ReversePaddle extends Item {

@@ -1,6 +1,7 @@
-package uet.oop.arkanoidgame.entities.item;
+package uet.oop.arkanoidgame.entities.item.Buff;
 
 import uet.oop.arkanoidgame.entities.ball.Ball;
+import uet.oop.arkanoidgame.entities.item.Item;
 import uet.oop.arkanoidgame.entities.paddle.Paddle;
 
 public class Buff_BiggerPaddle extends Item {

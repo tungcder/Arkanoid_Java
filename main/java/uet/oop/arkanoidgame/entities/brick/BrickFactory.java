@@ -1,9 +1,16 @@
 package uet.oop.arkanoidgame.entities.brick;
 
-/**
- * Factory for creating different types of bricks based on type code from CSV.
- */
 public class BrickFactory {
+    /**
+     * Tạo brick dựa trên type.
+     * @param type Mã type (1-6).
+     * @param x Tọa độ x.
+     * @param y Tọa độ y.
+     * @param width Chiều rộng.
+     * @param height Chiều cao.
+     * @return Brick tương ứng.
+     * @throws IllegalArgumentException Nếu type không hợp lệ.
+     */
     public static Brick createBrick(int type, double x, double y, double width, double height) {
         switch (type) {
             case 1:

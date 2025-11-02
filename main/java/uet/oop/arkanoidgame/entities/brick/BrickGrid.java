@@ -13,7 +13,7 @@ public class BrickGrid {
     private static final double BRICK_WIDTH = 100;
     private static final double BRICK_HEIGHT = 50;
     private static final double GRID_OFFSET_X = 0;
-    private static final double GRID_OFFSET_Y = 50;
+    private static final double GRID_OFFSET_Y = 0;
 
     public BrickGrid(String csvPath) {
         loadFrom(csvPath);
@@ -27,15 +27,21 @@ public class BrickGrid {
         }
     }
 
+    /**
+     * Đọc file CSV và tạo gạch tương ứng.
+     *
+     * @param csvPath Đường dẫn file CSV
+     * @throws IOException Nếu lỗi I/O
+     */
     public void loadFrom(String csvPath) {
         bricks.clear();
 
-        // ✅ FIX: Dùng getResourceAsStream thay vì FileReader
+        // Dùng getResourceAsStream thay vì FileReader
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(getClass().getResourceAsStream(csvPath)))) {
 
             if (br == null) {
-                System.err.println("❌ Cannot find CSV file: " + csvPath);
+                System.err.println("Cannot find CSV file: " + csvPath);
                 return;
             }
 
@@ -55,16 +61,21 @@ public class BrickGrid {
                 row++;
             }
 
-            // ✅ Debug: In ra số gạch đã load
-            System.out.println("✅ Loaded " + bricks.size() + " bricks from " + csvPath);
+            // In ra số gạch đã load
+            System.out.println("Loaded " + bricks.size() + " bricks from " + csvPath);
 
         } catch (IOException | NumberFormatException | NullPointerException e) {
-            System.err.println("❌ Error loading CSV: " + e.getMessage());
+            System.err.println("Error loading CSV: " + e.getMessage());
             e.printStackTrace();
         }
         updateMovingBricks();
     }
 
+    /**
+     * Vẽ tất cả gạch lên màn hình.
+     *
+     * @param gc GraphicsContext để vẽ
+     */
     public void render(GraphicsContext gc) {
         for (Brick brick : bricks) {
             brick.render(gc);
@@ -91,7 +102,7 @@ public class BrickGrid {
             }
         }
 
-        System.out.println("🔍 Breakable bricks: " + breakableLeft + " | Unbreakable: " + unbreakableLeft);
+        System.out.println("Breakable bricks: " + breakableLeft + " | Unbreakable: " + unbreakableLeft);
         return breakableLeft == 0;
     }
 

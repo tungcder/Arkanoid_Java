@@ -8,11 +8,6 @@ import uet.oop.arkanoidgame.ThemeManager;
 
 import java.io.InputStream;
 
-/**
- * Lớp cơ sở cho các loại Brick trong game Arkanoid.
- * Hỗ trợ load nhiều trạng thái ảnh nứt (damage states), fallback khi không tìm thấy ảnh,
- * và cho phép định nghĩa gạch không vỡ (unbreakable).
- */
 public abstract class Brick {
 
     // --- Thuộc tính cơ bản ---
@@ -24,11 +19,19 @@ public abstract class Brick {
     protected boolean destroyed = false;
     protected boolean breakable = true; // Mặc định gạch có thể phá
 
-    protected Image[] damageImages; // Mảng ảnh: [0]=nguyên, [1]=nứt1, [2]=nứt2,...
-    protected Image image; // Ảnh hiện tại (để tương thích cũ)
+    protected Image[] damageImages; // Mảng ảnh
+    protected Image image; // Ảnh hiện tại
     protected Item powerup;
 
-    // --- Constructor mới hỗ trợ nhiều ảnh ---
+    /**
+     * Khởi tạo brick với nhiều ảnh damage states.
+     * @param x Tọa độ x.
+     * @param y Tọa độ y.
+     * @param width Chiều rộng.
+     * @param height Chiều cao.
+     * @param hitsRequired Số lần hit cần để phá.
+     * @param imageFileNames Danh sách tên file ảnh damage.
+     */
     public Brick(double x, double y, double width, double height, int hitsRequired, String... imageFileNames) {
         this.x = x;
         this.y = y;
@@ -46,27 +49,34 @@ public abstract class Brick {
         this.image = damageImages[0]; // Mặc định ảnh nguyên vẹn
     }
 
-    // --- Load ảnh ---
+    /**
+     * Load ảnh từ resource.
+     * @param fullPath Đường dẫn đầy đủ.
+     * @return Image hoặc null nếu lỗi.
+     */
     protected static Image loadImage(String fullPath) {
         try (InputStream inputStream = Brick.class.getResourceAsStream(fullPath)) {
             if (inputStream == null) {
-                System.err.println("⚠ Không tìm thấy tài nguyên: " + fullPath);
+                System.err.println("Không tìm thấy tài nguyên: " + fullPath);
                 return null;
             }
             Image img = new Image(inputStream);
             if (img.isError()) {
-                System.err.println("⚠ Lỗi khi tải ảnh: " + fullPath);
+                System.err.println("Lỗi khi tải ảnh: " + fullPath);
                 return null;
             }
             return img;
         } catch (Exception e) {
-            System.err.println("⚠ Lỗi I/O khi tải ảnh: " + fullPath);
+            System.err.println("Lỗi I/O khi tải ảnh: " + fullPath);
             e.printStackTrace();
             return null;
         }
     }
 
-    // --- Khi bị trúng bóng - cập nhật ảnh nứt ---
+    /**
+     * Xử lý khi bị hit, cập nhật damage image.
+     * @return True nếu phá hủy.
+     */
     public boolean hit() {
         if (!breakable || destroyed) return false;
         currentHits++;
@@ -84,12 +94,16 @@ public abstract class Brick {
         return false;
     }
 
-    // --- Khi bị phá (override ở lớp con nếu cần) ---
+    /**
+     * Hành động khi bị phá.
+     */
     protected void onDestroyed() {
-        // Tạo powerup hoặc hiệu ứng khi brick vỡ
     }
 
-    // --- Vẽ Brick - dùng ảnh hiện tại ---
+    /**
+     * Vẽ brick lên canvas.
+     * @param gc GraphicsContext.
+     */
     public void render(GraphicsContext gc) {
         if (destroyed) return;
 
@@ -104,14 +118,19 @@ public abstract class Brick {
         }
     }
 
-    // --- Màu fallback ---
+    /**
+     * Màu fallback trừu tượng (override ở lớp con).
+     * @return Màu.
+     */
     protected abstract Color getFallbackColor();
 
+    /**
+     * Update trạng thái (mặc định không làm gì).
+     */
     public void update() {
-        // Các brick thông thường không di chuyển
     }
 
-    // --- Getter/Setter ---
+    // Getter/Setter
     public boolean isDestroyed() { return destroyed; }
     public double getX() { return x; }
     public double getY() { return y; }
@@ -124,10 +143,6 @@ public abstract class Brick {
 
     public Item getPowerup() { return powerup; }
     public void setPowerup(Item powerup) { this.powerup = powerup; }
-
-    // ============================================
-    // METHODS ĐỂ HỖ TRỢ LƯU/TẢI TRẠNG THÁI
-    // ============================================
 
     /**
      * Lấy "health" hiện tại của brick (số lần đập còn lại trước khi vỡ)
