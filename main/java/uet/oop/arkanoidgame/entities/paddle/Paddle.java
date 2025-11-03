@@ -55,18 +55,15 @@ public class Paddle {
     }
 
     /**
-     * Update vị trí.
+     * Animation của paddle.
      */
     public void update() {
-        if (keys.contains(KeyCode.LEFT) && x > 0) x -= speed;
-        if (keys.contains(KeyCode.RIGHT) && x + width < CANVAS_WIDTH) x += speed;
-
         // Nếu paddle đang ở frame 2 (frame "hit")
         if (currentFrameIndex == 1) {
             animationCounter++;
             if (animationCounter >= ANIMATION_DELAY) {
                 animationCounter = 0;
-                currentFrameIndex = 0; // Quay lại frame 1 (mặc định)
+                currentFrameIndex = 0; // Quay lại frame 1
             }
         }
     }
@@ -129,6 +126,10 @@ public class Paddle {
         sizeBuffTimer.play();
     }
 
+    public void setReverseDirection(boolean reverse) {
+        this.reverseDirection = reverse;
+    }
+
     // Getter / Setter cơ bản
     public void addKey(KeyCode code) { keys.add(code); }
     public void removeKey(KeyCode code) { keys.remove(code); }
@@ -141,7 +142,4 @@ public class Paddle {
     public void setWidth(double width) { this.width = width; }
     public void setHeight(double height) { this.height = height; }
 
-    public void setReverseDirection(boolean reverse) {
-        this.reverseDirection = reverse;
-    }
 }

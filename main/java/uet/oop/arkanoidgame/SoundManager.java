@@ -24,7 +24,7 @@ public class SoundManager {
     private MediaPlayer currentMusicPlayer;
     private String currentMusicName = null;
 
-    // --- BIẾN QUẢN LÝ ÂM LƯỢNG ---
+    // BIẾN QUẢN LÝ ÂM LƯỢNG
     // Mặc định tất cả là 100% (1.0)
     private double masterVolume = 1.0;
     private double musicVolume = 1.0;
@@ -48,8 +48,9 @@ public class SoundManager {
         loadSfx("GameOver", SOUND_DIR + "GameOver.wav");
     }
 
-    // --- Phương thức cho SFX (AudioClip) ---
-
+    /**
+    * Phương thức cho SFX (AudioClip).
+    */
     private void loadSfx(String name, String resourcePath) {
         try {
             URL resourceUrl = getClass().getResource(resourcePath);
@@ -77,8 +78,9 @@ public class SoundManager {
         }
     }
 
-    // --- Phương thức cho Music (MediaPlayer) ---
-
+    /**
+    * Phương thức cho Music (MediaPlayer).
+    */
     private void loadMusic(String name, String resourcePath) {
         try {
             URL resourceUrl = getClass().getResource(resourcePath);
@@ -144,7 +146,7 @@ public class SoundManager {
         }
     }
 
-    // --- CÁC PHƯƠNG THỨC SET/GET ÂM LƯỢNG ---
+    // CÁC PHƯƠNG THỨC SET/GET ÂM LƯỢNG
 
     /**
      * Cập nhật âm lượng của nhạc nền đang phát (nếu có).

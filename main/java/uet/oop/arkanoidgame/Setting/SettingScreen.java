@@ -24,7 +24,7 @@ import uet.oop.arkanoidgame.entities.menu.MainMenu;
 import java.util.function.Consumer;
 
 /**
- * Lớp quản lý màn hình Cài Đặt (Settings)
+ * Lớp quản lý màn hình Cài Đặt (Settings).
  * Cho phép điều chỉnh âm lượng và chủ đề.
  */
 public class SettingScreen extends StackPane {
@@ -128,7 +128,7 @@ public class SettingScreen extends StackPane {
         this.stage = stage;
         this.soundManager = soundManager;
 
-        // --- 1. Ảnh nền ---
+        // 1. Ảnh nền
         Image bgImage = new Image(
                 getClass().getResource(BACKGROUND_IMAGE_PATH).toExternalForm()
         );
@@ -136,10 +136,10 @@ public class SettingScreen extends StackPane {
         background.setFitWidth(800);
         background.setFitHeight(600);
 
-        // --- 2. Tiêu đề ---
+        // 2. Tiêu đề
         Label title = createTitle("SETTINGS");
 
-        // --- 3. Hộp chứa nội dung ÂM THANH ---
+        // 3. Hộp chứa nội dung ÂM THANH
         VBox soundBox = new VBox(CONTENT_SPACING);
         soundBox.setAlignment(Pos.TOP_CENTER); // Căn giữa các thanh trượt
         soundBox.setPadding(new Insets(CONTENT_PADDING));
@@ -171,7 +171,7 @@ public class SettingScreen extends StackPane {
                 sfxVolumeBox
         );
 
-        // --- 4. Hộp chứa nội dung CHỦ ĐỀ ---
+        // 4. Hộp chứa nội dung CHỦ ĐỀ
         VBox themeBox = new VBox(CONTENT_SPACING);
         themeBox.setAlignment(Pos.TOP_CENTER);
         themeBox.setPadding(new Insets(CONTENT_PADDING));
@@ -216,7 +216,7 @@ public class SettingScreen extends StackPane {
                 selectorBox
         );
 
-        // --- 5. Nút quay lại ---
+        // 5. Nút quay lại
         Button backButton = createBackButton();
         backButton.setOnAction(e -> {
             // Quay trở lại Main Menu
@@ -224,7 +224,7 @@ public class SettingScreen extends StackPane {
             stage.setScene(new Scene(mainMenu, 800, 600));
         });
 
-        // --- 6. Thêm vào StackPane ---
+        // 6. Thêm vào StackPane ---
         getChildren().addAll(background, title, soundBox, themeBox, backButton);
 
         // Căn lề TIÊU ĐỀ
@@ -251,7 +251,7 @@ public class SettingScreen extends StackPane {
         // Tiêu đề của thanh trượt
         Label sliderLabel = new Label(label);
         sliderLabel.setFont(Font.font("System", FontWeight.BOLD, SLIDER_LABEL_FONT_SIZE));
-        sliderLabel.setTextFill(Color.web("#00ffff")); // Màu neon
+        sliderLabel.setTextFill(Color.web("#00ffff"));
         sliderLabel.setEffect(new DropShadow(10, Color.web("#00ffff", 0.7)));
 
         // Thanh trượt

@@ -56,7 +56,7 @@ public class SettingManager {
     }
 
     /**
-     * Lưu cài đặt hiện tại (từ SoundManager, ThemeManager) vào file.
+     * Lưu cài đặt hiện tại từ SoundManager/ThemeManager vào file.
      * Được gọi mỗi khi người chơi thay đổi cài đặt trong SettingScreen.
      */
     public static void saveSettings(SoundManager soundManager) {
