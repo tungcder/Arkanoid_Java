@@ -10,3 +10,5 @@ Giới thiệu trò chơi:
 
 Video Demo game:
 
+https://www.youtube.com/watch?v=IQtTvmojiPA
+
