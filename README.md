@@ -6,6 +6,8 @@ Bản thiết kế:
 
 Bảng phân công công việc:
 
+<img width="1269" height="642" alt="image" src="https://github.com/user-attachments/assets/b1efee3d-d9a6-4b8d-9458-7884db632a36" />
+
 Giới thiệu trò chơi:
 
 Video Demo game:
